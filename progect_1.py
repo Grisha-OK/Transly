@@ -3,6 +3,10 @@ from unittest.util import strclass
 import pandas as pd
 from tkinter import Tk  
 import keyboard
+#Import the required libraries
+from pystray import MenuItem as item
+import pystray
+from PIL import Image, ImageTk
 
 alphabet_language = {
     "ё": "`", "Ё": "~", "й": "q", "Й": "Q", "ц": "w", "Ц": "W", "у": "e", "У": "E", "к": "r", "К": "R", "е": "t", "Е": "T", "н": "y", "Н": "Y", "г": "u", "Г": "U", "ш": "i",
@@ -20,14 +24,46 @@ def fast_name():
     keyboard.send("ctrl+c")
     time: (50)
     ad = Tk().clipboard_get()
-    re_print = ""
+    re_print = ''
     for i in ad:
         re_print = str(re_print + alphabet_language[i])
 
-    print(re_print)
+    #print(re_print)
     df=pd.DataFrame([re_print])
     df.to_clipboard(index=False,header=False)
     keyboard.send("ctrl+v")
+
+keyboard.add_hotkey("ctrl + y", lambda: fast_name())
+
+# Create an instance of tkinter frame or window
+win=Tk()
+win.title("Trans Translation")
+
+# Set the size of the window
+win.geometry("200x50")
+
+# Define a function for quit the window
+def quit_window(icon, item):
+   icon.stop()
+   win.destroy()
+   exit()
+
+# Define a function to show the window again
+def show_window(icon, item):
+   icon.stop()
+   win.after(0,win.deiconify())
+
+# Hide the window and show on the system taskbar
+def hide_window():
+   win.withdraw()
+   image=Image.open("favicon.ico")
+   menu=(item('Quit', quit_window), item('Show', show_window))
+   icon=pystray.Icon("name", image, "My System Tray Icon", menu)
+   icon.run()
+
+win.protocol('WM_DELETE_WINDOW', hide_window)
+
+win.mainloop()
 
 keyboard.add_hotkey("ctrl + y", lambda: fast_name())
 keyboard.wait()
