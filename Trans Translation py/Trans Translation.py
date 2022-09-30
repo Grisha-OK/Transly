@@ -1,13 +1,15 @@
+# Импортируем модули для пере-трансляции и кравиатуры
 from time import time
 from unittest.util import strclass
 import pandas as pd
 from tkinter import Tk  
 import keyboard
-#Import the required libraries
+# Импортируем модули для добавления иконки в системном трее
 from pystray import MenuItem as item
 import pystray
 from PIL import Image, ImageTk
 
+# Алфавит для перевода
 alphabet_language = {
     "ё": "`", "Ё": "~", "й": "q", "Й": "Q", "ц": "w", "Ц": "W", "у": "e", "У": "E", "к": "r", "К": "R", "е": "t", "Е": "T", "н": "y", "Н": "Y", "г": "u", "Г": "U", "ш": "i",
      "Ш": "I", "щ": "o", "Щ": "O", "з": "p", "З": "P", "х": "[", "Х": "{", "ъ": "]", "Ъ": "}", "ф": "a", "Ф": "A", "ы": "s", "Ы": "S", "в": "d", "В": "D", "а": "f", "А": "F", "п": "g", "П": "G",
@@ -19,6 +21,7 @@ alphabet_language = {
            'V': 'М', 'b': 'и', 'B': 'И', 'n': 'т', 'N': 'Т', 'm': 'ь', 'M': 'Ь', ',': 'б', '<': 'Б', '.': 'ю', '>': 'Ю',
             '\n': '\n', '?': ',', ' ': ' '}
 
+# Функцыя для копирования, пере-трансляции, сбоки и вставляния текста
 def fast_name():
     time: (50)
     keyboard.send("ctrl+c")
@@ -32,27 +35,28 @@ def fast_name():
     df.to_clipboard(index=False,header=False)
     keyboard.send("ctrl+v")
 
+# Проверка хот-кея
 keyboard.add_hotkey("ctrl + y", lambda: fast_name())
 
-# Create an instance of tkinter frame or window
+# Создайте экземпляр фрейма или окна tkinter
 win=Tk()
 win.title("Trans Translation")
 
-# Set the size of the window
+# Установите размер окна
 win.geometry("200x50")
 
-# Define a function for quit the window
+# Определите функцию для выхода из окна
 def quit_window(icon, item):
    icon.stop()
    win.destroy()
    exit()
 
-# Define a function to show the window again
+# Определите функцию для повторного отображения окна
 def show_window(icon, item):
    icon.stop()
    win.after(0,win.deiconify())
 
-# Hide the window and show on the system taskbar
+# Скройте окно и покажите на системной панели задач
 def hide_window():
    win.withdraw()
    image=Image.open("favicon.ico")
