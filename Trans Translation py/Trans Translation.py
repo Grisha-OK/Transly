@@ -1,13 +1,15 @@
 # Импортируем модули для пере-трансляции и кравиатуры
-from time import time
-from unittest.util import strclass
 import pandas as pd
-from tkinter import Tk  
+from tkinter import Tk, Button
 import keyboard
 # Импортируем модули для добавления иконки в системном трее
 from pystray import MenuItem as item
 import pystray
 from PIL import Image, ImageTk
+
+# Функцыя для выхода из программы
+def Functions_exit():
+   exit()
 
 # Алфавит для перевода
 alphabet_language = {
@@ -17,15 +19,13 @@ alphabet_language = {
        "М": "V", "и": "b", "И": "B", "т": "n", "Т": "N", "ь": "m", "Ь": "M", "б": ",", "Б": "<", "ю": ".", "Ю": ">", 
         '`': 'ё', '~': 'Ё', 'q': 'й', 'Q': 'Й', 'w': 'ц', 'W': 'Ц', 'e': 'у', 'E': 'У', 'r': 'к', 'R': 'К', 't': 'е', 'T': 'Е', 'y': 'н', 'Y': 'Н', 'u': 'г', 'U': 'Г', 'i': 'ш',
          'I': 'Ш', 'o': 'щ', 'O': 'Щ', 'p': 'з', 'P': 'З', '[': 'х', '{': 'Х', ']': 'ъ', '}': 'Ъ', 'a': 'ф', 'A': 'Ф', 's': 'ы', 'S': 'Ы', 'd': 'в', 'D': 'В', 'f': 'а', 'F': 'А', 'g': 'п', 'G': 'П',
-          'h': 'р', 'H': 'Р', 'j': 'о', 'J': 'О', 'k': 'л', 'K': 'Л', 'l': 'д', 'L': 'Д', ';': 'ж', ':': 'Ж', "'": 'э', '"': 'Э', 'z': 'я', 'Z': 'Я', 'x': 'ч', 'X': 'Ч', 'c': 'с', 'C': 'С', 'v': 'м',
+          'h': 'р', 'H': 'Р', 'j': 'о', 'J': 'О', 'k': 'л', 'K': 'Л', 'l': 'д', 'L': 'Д', ';': 'ж', ':': 'Ж', "'": 'э', '"': "Э", 'z': 'я', 'Z': 'Я', 'x': 'ч', 'X': 'Ч', 'c': 'с', 'C': 'С', 'v': 'м',
            'V': 'М', 'b': 'и', 'B': 'И', 'n': 'т', 'N': 'Т', 'm': 'ь', 'M': 'Ь', ',': 'б', '<': 'Б', '.': 'ю', '>': 'Ю',
-            '\n': '\n', '?': ',', ' ': ' '}
+            '\n': '\n', '?': ',', " ": " "}
 
 # Функцыя для копирования, пере-трансляции, сбоки и вставляния текста
 def fast_name():
-    time: (50)
     keyboard.send("ctrl+c")
-    time: (50)
     ad = Tk().clipboard_get()
     re_print = ''
     for i in ad:
@@ -61,13 +61,14 @@ def hide_window():
    win.withdraw()
    image=Image.open("favicon.ico")
    menu=(item('Quit', quit_window), item('Show', show_window))
-   icon=pystray.Icon("name", image, "My System Tray Icon", menu)
+   icon=pystray.Icon("name", image, "Trans Translation", menu)
    icon.run()
+
+# Добовление кнопки для выхода из программы
+btn = Button(win, text="Закрыть программу", command = Functions_exit)
+btn.pack()
 
 win.protocol('WM_DELETE_WINDOW', hide_window)
 
 win.mainloop()
-
-keyboard.add_hotkey("ctrl + y", lambda: fast_name())
-keyboard.wait()
 
