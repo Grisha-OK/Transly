@@ -8,8 +8,8 @@
     <strong>Transly — инструмент для смены раскладки уже написанного текста.</strong>
   </p>
 
-[![build](https://img.shields.io/badge/download-v1.0.exe-blue)](https://github.com/Grisha-OK/trans_translation/releases/download/Transly/Transly.v1.2exe.zip)
-[![build](https://img.shields.io/badge/download-v1.0.py-green)](https://github.com/Grisha-OK/trans_translation/releases/download/Transly/Transly.v1.2py.zip)
+[![build](https://img.shields.io/badge/download-v1.3.exe-blue)](https://github.com/Grisha-OK/Transly/releases/download/Transly/Transly.v1.3exe.zip)
+[![build](https://img.shields.io/badge/download-v1.3.py-green)](https://github.com/Grisha-OK/Transly/releases/download/Transly/Transly.v1.3py.zip)
 
 
    <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExenVvajBzN29pOG80Y3NhcG8yenZjdGQ0bGx3Z2toN3YzZHNhc3gyOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hU4XTtZIVDH1x3oAWp/giphy.gif" width="300" height="200"/>
@@ -24,7 +24,7 @@
 Для этого вам следует выделить текст, который нуждается в смене раскладки, можно также воспользоваться комбинацией **< ctrl + a >**, для выделения всего текста в строке ввода,
 далее чтобы Trans Translation выполнила свою главную функцию вам следует нажать комбинацию **< ctrl + F9 >** после чего программа сменит раскладку выделенного вами текста.
 
-Также по этому пути: C:\Users\User\AppData\Roaming\Transly создаётся файл настройки, в котором можно настроить комбинацию клавиш для работы программы,
+Также по этому пути: C:\Users\User\\\.transly создаётся файл настройки, в котором можно настроить комбинацию клавиш для работы программы,
 а также если заморочиться можно заменить язык смены раскладки.
 
 ## Installation
