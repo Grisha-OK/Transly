@@ -14,7 +14,6 @@ import pystray
 from pystray import MenuItem as item
 
 # Standard Python modules
-#from sleep
 import time
 import json
 import os
@@ -30,7 +29,6 @@ import shutil
 import ctypes
 
 # Modules for working with
-#from  getuser
 import getpass
 
 # So-called alphabet
@@ -68,6 +66,9 @@ def file_path(tild):
     path_to_file = os.path.realpath(__file__).replace(name_file, tild)
     if "Temp" in path_to_file: #condition for checking if the file is compiled
         return(path_to_file)
+    elif "GitHub" in path_to_file: #condition for checking if the file is development
+        shutil.copy(path_to_file, f"{path}/img/favicon.ico") #copy the picture to the working directory
+        return(path_to_file)
     else:  
         try:
             shutil.move(path_to_file, f"{path}/img/favicon.ico") #move the picture to the working directory
@@ -99,34 +100,36 @@ def mergiing(nomber, text):
     global CONSTANT_LIST
     CONSTANT_LIST[nomber] = text
 
-# Function to create json file and setting recordings
-def push_config_file():
-    # shron["switch_off"] = switch_off
-    with open(f"{path}/dictionary.json", "w") as write_file:
-        json.dump(dict(shron), write_file, indent=4)
-
-# Function to encode text settings in it
-def json_worker(_shron_):
-    try:
-        with open(f"{path}/dictionary.json", "r") as write_file: #file opened only in the with open construct
-            interlayer = {}
-            interlayer = json.loads(write_file.read())
-            return(interlayer) 
-    except FileNotFoundError:
-        push_config_file()
-        return(_shron_)
-shron = {}
+# Function for filling a list of constants
 def setting_dap():
-    global shron
     mergiing("switch_off", SWITCH_OFF)                   #call the text assembly for JSON deserialization with key 1 and value switch_off
     mergiing("hot_key_layout", HOT_KEY_LAYOUT)           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
     mergiing("hot_key_translation", HOT_KEY_TRANSLATION) #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
     mergiing("language_en", LANGUAGE_EN)                 #call the text assembly for JSON deserialization with key 4 and value language_en
     mergiing("language_ru", LANGUAGE_RU)                 #call the text assembly for JSON deserialization with key 5 and value language_ru
     mergiing("alphabet_language", ALPHABET_LANGUAGE)     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
-    shron = CONSTANT_LIST
-    return(json_worker(shron))
-shron = setting_dap()
+    return(CONSTANT_LIST)
+
+# Function to create json file
+def push_config_file(const_shron_dump):
+    with open(f"{path}/dictionary.json", "w") as write_file:
+        json.dump(dict(const_shron_dump), write_file, indent=4)
+
+# Function to encode text settings in it
+def json_worker():
+    try:
+        with open(f"{path}/dictionary.json", "r") as write_file: #file opened only in the with open construct
+            interlayer = {}
+            interlayer = json.loads(write_file.read())
+            return(interlayer) 
+    except FileNotFoundError:
+        const_shron = setting_dap()
+        push_config_file(const_shron)
+        return(const_shron)
+
+shron = {}
+shron = json_worker()
+
 switch_off = shron["switch_off"]               #call the language_ru text
 hot_key_n1 = shron["hot_key_layout"]           #call the hot-key-№1 text
 hot_key_n2 = shron["hot_key_translation"]      #call the hot-key-№2 text
@@ -218,7 +221,7 @@ def simpletoggle():
     global switch_off
     switch_off = not(switch_off)
     shron["switch_off"] = switch_off
-    push_config_file()
+    push_config_file(shron)
 
 # Add a separating border
 frame = customtkinter.CTkFrame(win)
