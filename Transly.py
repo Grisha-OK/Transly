@@ -3,33 +3,28 @@ I apologize for this appeal :D
                                     
 """    
 
-from googletrans import Translator
-
 # pip install ...
 # External libraries
 import clipboard
 import keyboard
-import pystray
+#import pystray
 
-from pystray import MenuItem as item
+from googletrans import Translator
+# from pystray import MenuItem as item
+# from PIL import Image #pip install pillow
 
 # Standard Python modules
 import time
 import json
 import os
-import sys
+import getpass
+import ctypes
+import shutil
+#import sys
 
 # GUI modules
-from tkinter import Tk, TOP, LEFT, BOTH
-import customtkinter
-
-# Modules for working with images and files 
-from PIL import Image
-import shutil
-import ctypes
-
-# Modules for working with
-import getpass
+from tkinter import Tk
+from gui import TranslyGUI
 
 # So-called alphabet
 ALPHABET_LANGUAGE = {
@@ -191,61 +186,7 @@ def check_hotkey():
     except:
         return
 
-# Create an instance of the tkinter frame or window
-win = customtkinter.CTk()
-win.title("Transly")
-win.iconbitmap(file_icon_path)
-win.geometry("300x85")
-customtkinter.set_widget_scaling(0.85)
-
-# Define a function to exit the window / and by compatibility for exiting the entire program
-def quit_window(icon=None):
-   icon.stop()
-   os.abort()
-
-# A function for re-displaying the window
-def show_window(icon):
-    icon.stop()
-    win.deiconify() #I'll probably leave it here <win.after(0,win.deiconify())>
-
-# Hide the window and show it on the system taskbar
-def hide_window():
-   win.withdraw()
-   image = Image.open(file_icon_path)
-   menu = (item('Quit', lambda : quit_window(icon)), item('Show', lambda : show_window(icon)))
-   icon = pystray.Icon("name", image, "Trans Translation", menu)
-   icon.run()
-   
-# Function true/false switch
-def simpletoggle():
-    global switch_off
-    switch_off = not(switch_off)
-    shron["switch_off"] = switch_off
-    push_config_file(shron)
-
-# Add a separating border
-frame = customtkinter.CTkFrame(win)
-frame.pack(fill=BOTH, side=LEFT, expand=True)
-
-# Add indentation
-lbl1 = customtkinter.CTkLabel(frame, text="Changing the layout:", font=(0, 17)).pack(side=TOP, pady=10)
-lbl2 = customtkinter.CTkLabel(win, text="   ", fg_color="transparent").pack(side=TOP, pady=0)
-
-# Add a button to exit the program
-btn = customtkinter.CTkButton(win, text="Quit", font=(0, 17), command=lambda: sys.exit(), fg_color="gray10", corner_radius=16)
-btn.pack(side=TOP, padx=(10,10), pady=(0,20), ipadx=5, ipady=5)
-
-# Specifically the toggle itself:
-is_on = customtkinter.BooleanVar(value=False)
-toggle_button = customtkinter.CTkSwitch(frame, text="", width=10, variable=is_on, onvalue="on",
-                                        offvalue="off", command=lambda: simpletoggle())
-toggle_button.pack(side=TOP)
-if switch_off == True:
-    toggle_button.select()
-
-# Initialize the tray icon
-win.protocol('WM_DELETE_WINDOW', hide_window)
-
 if __name__ == "__main__":
     check_hotkey() #hot-key check
-    win.mainloop() #main loop
+    app = TranslyGUI(file_icon_path, switch_off, shron, push_config_file)
+    app.run()
