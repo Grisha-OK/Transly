@@ -44,8 +44,6 @@ LANGUAGE_EN = ("en")
 LANGUAGE_RU = ("ru")
 SWITCH_OFF = False #variable for setting up the layout switch
 
-switch_off = ''
-
 # Function to press the keys
 def CTRL_C():
     ctypes.windll.user32.keybd_event(0x11, 0, 0, 0)  # Ctrl down
@@ -62,9 +60,15 @@ def SHIFT_ALT():
     ctypes.windll.user32.keybd_event(0x12, 0, 0, 0)  # Alt down
     ctypes.windll.user32.keybd_event(0x12, 0, 2, 0)  # Alt up
     ctypes.windll.user32.keybd_event(0x10, 0, 2, 0)  # Shift up
+
+class SwitchState:
+    def __init__(self):
+        self.switch_side = None
+
 class TransProches:
-    def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF):
+    def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, baf_state):
  
+        #for clarity, i'm thowing constant =D
         self.ALPHABET_LANGUAGE = ALPHABET_LANGUAGE
         self.HOT_KEY_LAYOUT = HOT_KEY_LAYOUT
         self.HOT_KEY_TRANSLATION = HOT_KEY_TRANSLATION
@@ -72,14 +76,15 @@ class TransProches:
         self.LANGUAGE_RU = LANGUAGE_RU
         self.SWITCH_OFF = SWITCH_OFF
 
-        global switch_off
-        
+        #worcking attributes
+        self.baf_state = baf_state
         self.CONSTANT_LIST = {}
         self.path = self.reate_a_folder()
         self.file_icon_path = self.file_path("favicon.ico")
         self.shron = self.json_worker()
 
-        switch_off = self.shron["switch_off"]               #call the language_ru text
+        #atributes state in file
+        self.baf_state.switch_side = self.shron["switch_off"]    #call the language_ru text
         self.hot_key_n1 = self.shron["hot_key_layout"]           #call the hot-key-№1 text
         self.hot_key_n2 = self.shron["hot_key_translation"]      #call the hot-key-№2 text
         self.language_1 = self.shron["language_en"]              #call the language_en text
@@ -118,12 +123,12 @@ class TransProches:
     
     # Function for filling a list of constants
     def setting_dap(self):
-        self.mergiing("switch_off", SWITCH_OFF)                   #call the text assembly for JSON deserialization with key 1 and value switch_off
-        self.mergiing("hot_key_layout", HOT_KEY_LAYOUT)           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
-        self.mergiing("hot_key_translation", HOT_KEY_TRANSLATION) #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
-        self.mergiing("language_en", LANGUAGE_EN)                 #call the text assembly for JSON deserialization with key 4 and value language_en
-        self.mergiing("language_ru", LANGUAGE_RU)                 #call the text assembly for JSON deserialization with key 5 and value language_ru
-        self.mergiing("alphabet_language", ALPHABET_LANGUAGE)     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
+        self.mergiing("switch_off", self.SWITCH_OFF)                   #call the text assembly for JSON deserialization with key 1 and value switch_off
+        self.mergiing("hot_key_layout", self.HOT_KEY_LAYOUT)           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
+        self.mergiing("hot_key_translation", self.HOT_KEY_TRANSLATION) #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
+        self.mergiing("language_en", self.LANGUAGE_EN)                 #call the text assembly for JSON deserialization with key 4 and value language_en
+        self.mergiing("language_ru", self.LANGUAGE_RU)                 #call the text assembly for JSON deserialization with key 5 and value language_ru
+        self.mergiing("alphabet_language", self.ALPHABET_LANGUAGE)     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
         return(self.CONSTANT_LIST)
     
     # Function to create json file
@@ -172,7 +177,7 @@ class TransProches:
         clipboard.copy(re_print)  #add the finished text to the clipboard
         CTRL_V()
         
-        if switch_off == True: #condition for switching the layout
+        if self.baf_state.switch_side == True: #condition for switching the layout
             SHIFT_ALT()
     
     # Function for working with Google translator
@@ -197,11 +202,12 @@ class TransProches:
         except:
             return
 class TranslyGUI:
-    def __init__(self, file_icon_path, shron, push_config_file):
+    def __init__(self, file_icon_path, shron, push_config_file, baf_state):
 
         self.file_icon_path = file_icon_path
         self.shron = shron
         self.push_config_file = push_config_file
+        self.baf_state = baf_state
 
         # Create an instance of the tkinter frame or window
         self.win = customtkinter.CTk()
@@ -242,7 +248,7 @@ class TranslyGUI:
             offvalue="off", command=lambda: self._toggle_switch())
         self.toggle_button.pack(side='top')
         
-        if switch_off:
+        if self.baf_state.switch_side == True:
             self.toggle_button.select()
    
     #Check window closing and tray icon initialization
@@ -251,9 +257,8 @@ class TranslyGUI:
     
     # Function true/false switch
     def _toggle_switch(self):
-        global switch_off
-        switch_off = not(switch_off)
-        self.shron["switch_off"] = switch_off
+        self.baf_state.switch_side = not(self.baf_state.switch_side)
+        self.shron["switch_off"] = self.baf_state.switch_side
         self.push_config_file(self.shron)
     
     # Hide the window and show it on the system taskbar
@@ -279,7 +284,8 @@ class TranslyGUI:
         self.win.mainloop() 
 
 if __name__ == "__main__":
-    main = TransProches(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
+    swof = SwitchState()
+    main = TransProches(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, swof)
     main.check_hotkey() #hot-key check
-    app = TranslyGUI(main.file_icon_path, main.shron, main.push_config_file)
+    app = TranslyGUI(main.file_icon_path, main.shron, main.push_config_file, swof)
     app.run()
