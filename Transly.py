@@ -24,7 +24,7 @@ import sys
 
 # GUI modules
 from tkinter import Tk
-import customtkinter
+import customtkinter #pip install customtkinter
 
 # So-called alphabet
 ALPHABET_LANGUAGE = {
@@ -145,7 +145,6 @@ class TransProches:
 
     # Function for extracting text from the input hoop
     def selecting_text(self, typ_is):
-        print(switch_off)
         try:
             def clip_get():
                 CTRL_C()
