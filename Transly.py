@@ -7,7 +7,6 @@ I apologize for this appeal :D
 # External libraries
 import clipboard
 import keyboard
-import pystray
 
 from googletrans import Translator
 from pystray import Icon as icon, Menu as menu, MenuItem as item
@@ -63,7 +62,7 @@ def SHIFT_ALT():
 
 class SwitchState:
     def __init__(self):
-        self.switch_side = None
+        self.switch_side1 = None
 
 class TransJson:
     def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, baf_state):
@@ -84,7 +83,7 @@ class TransJson:
         self.shron = self.json_worker()
 
         #atributes state in file
-        self.baf_state.switch_side = self.shron["switch_off"]    #call the language_ru text
+        self.baf_state.switch_side1 = self.shron["switch_off"]    #call the language_ru text
         self.hot_key_n1 = self.shron["hot_key_layout"]           #call the hot-key-№1 text
         self.hot_key_n2 = self.shron["hot_key_translation"]      #call the hot-key-№2 text
         self.language_1 = self.shron["language_en"]              #call the language_en text
@@ -156,24 +155,25 @@ class TransLayout():
         self.baf_state = trans_json.baf_state
 
     # Function for extracting text from the input hoop
-    def selecting_text(self, typ_is):
-        try:
-            def clip_get():
-                CTRL_C()
-                return(Tk().clipboard_get())
-            if typ_is == "master_keyboard_worker":
-                self.master_keyboard_worker(clip_get())
-            elif typ_is == "master_transly_worker":
-                self.master_transly_worker(clip_get())
-            else:
-                return
-        except:
-            #print("ошибка")
-            time.sleep(0.1)
-            self.selecting_text(typ_is) # -------------------------- поправить бесконечную рекурсию, если текст не будет скопирован в буфер обмена
+    def selecting_text(self, copy=True):
+        def clip_get(counter=0):
+           try:
+               if counter == 5:
+                   print("превышено количество попыток получения текста из буфера обмена")
+                   return("")
+            #    if self.baf_state.switch_side2 == True:
+            #        CTRL_A()
+               if copy == True:
+                   CTRL_C()
+               return(Tk().clipboard_get())
+           except:
+               #print("ошибка")
+               time.sleep(0.1)
+               return(clip_get(counter+1))
+        return(clip_get())
     
     # Function for copying, translating, assembling and pasting text
-    def master_keyboard_worker(self, select_text):
+    def master_keyboard_worker(self, select_text, paste=True):
         re_print = ''
         #preparing the copied text
         for i in select_text:
@@ -182,13 +182,14 @@ class TransLayout():
             except:
                 re_print = re_print + i
         clipboard.copy(re_print)  #add the finished text to the clipboard
-        CTRL_V()
-        
-        if self.baf_state.switch_side == True: #condition for switching the layout
+        if paste == True:
+            CTRL_V()
+
+        if self.baf_state.switch_side1 == True: #condition for switching the layout
             SHIFT_ALT()
     
     # Function for working with Google translator
-    def master_transly_worker(self, select_text):
+    def master_transly_worker(self, select_text, paste=True):
         translator = Translator()
         detected = translator.detect(select_text)
         if detected.lang == self.language_1:
@@ -199,13 +200,14 @@ class TransLayout():
             for_translation = "en"
         translation = translator.translate(select_text, dest=for_translation)
         clipboard.copy(translation.text)  #add the finished text to the clipboard
-        CTRL_V()
+        if paste == True:
+            CTRL_V()
 
     # Hot-key check
     def check_hotkey(self):
         try:
-            keyboard.add_hotkey(self.hot_key_n1, lambda: self.selecting_text("master_keyboard_worker"))
-            keyboard.add_hotkey(self.hot_key_n2, lambda: self.selecting_text("master_transly_worker"))
+            keyboard.add_hotkey(self.hot_key_n1, lambda: self.master_keyboard_worker(self.selecting_text()))
+            keyboard.add_hotkey(self.hot_key_n2, lambda: self.master_transly_worker(self.selecting_text()))
         except:
             return
     
@@ -259,7 +261,7 @@ class TranslyGUI:
             offvalue="off", command=lambda: self._toggle_switch())
         self.toggle_button.pack(side='top')
         
-        if self.baf_state.switch_side == True:
+        if self.baf_state.switch_side1 == True:
             self.toggle_button.select()
    
     #Check window closing and tray icon initialization
@@ -268,8 +270,8 @@ class TranslyGUI:
     
     # Function true/false switch
     def _toggle_switch(self):
-        self.baf_state.switch_side = not(self.baf_state.switch_side)
-        self.shron["switch_off"] = self.baf_state.switch_side
+        self.baf_state.switch_side1 = not(self.baf_state.switch_side1)
+        self.shron["switch_off"] = self.baf_state.switch_side1
         self.push_config_file(self.shron)
     
     # Hide the window and show it on the system taskbar
