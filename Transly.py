@@ -10,7 +10,7 @@ import keyboard
 import pystray
 
 from googletrans import Translator
-from pystray import MenuItem as item
+from pystray import Icon as icon, Menu as menu, MenuItem as item
 from PIL import Image #pip install pillow
 
 # Standard Python modules
@@ -65,7 +65,7 @@ class SwitchState:
     def __init__(self):
         self.switch_side = None
 
-class TransProches:
+class TransJson:
     def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, baf_state):
  
         #for clarity, i'm thowing constant =D
@@ -147,6 +147,13 @@ class TransProches:
             const_shron = self.setting_dap()
             self.push_config_file(const_shron)
             return(const_shron)
+        
+class TransLayout():
+    def __init__(self, trans_json):
+        self.hot_key_n1 = trans_json.hot_key_n1
+        self.hot_key_n2 = trans_json.hot_key_n2
+        self.dictionary = trans_json.dictionary
+        self.baf_state = trans_json.baf_state
 
     # Function for extracting text from the input hoop
     def selecting_text(self, typ_is):
@@ -163,7 +170,7 @@ class TransProches:
         except:
             #print("ошибка")
             time.sleep(0.1)
-            self.selecting_text(typ_is)
+            self.selecting_text(typ_is) # -------------------------- поправить бесконечную рекурсию, если текст не будет скопирован в буфер обмена
     
     # Function for copying, translating, assembling and pasting text
     def master_keyboard_worker(self, select_text):
@@ -193,7 +200,7 @@ class TransProches:
         translation = translator.translate(select_text, dest=for_translation)
         clipboard.copy(translation.text)  #add the finished text to the clipboard
         CTRL_V()
-    
+
     # Hot-key check
     def check_hotkey(self):
         try:
@@ -201,13 +208,17 @@ class TransProches:
             keyboard.add_hotkey(self.hot_key_n2, lambda: self.selecting_text("master_transly_worker"))
         except:
             return
+    
 class TranslyGUI:
-    def __init__(self, file_icon_path, shron, push_config_file, baf_state):
+    def __init__(self, file_icon_path, shron, push_config_file, baf_state, icon, menu, item):
 
         self.file_icon_path = file_icon_path
         self.shron = shron
         self.push_config_file = push_config_file
         self.baf_state = baf_state
+        self.icon = icon
+        self.menu = menu
+        self.item = item
 
         # Create an instance of the tkinter frame or window
         self.win = customtkinter.CTk()
@@ -265,18 +276,18 @@ class TranslyGUI:
     def _hide_window(self):
        self.win.withdraw()
        image = Image.open(self.file_icon_path)
-       menu = (item('Quit', lambda : self._quit_window(self.icon)),
-               item('Show', lambda : self._show_window(self.icon)))
-       self.icon = pystray.Icon("name", image, "Trans Translation", menu)
+       menu = (item('Quit', lambda : self.quit_window()),
+               item('Show', lambda : self.show_window()))
+       self.icon = icon("name", image, "Trans Translation", menu)
        self.icon.run()
     
     # Define a function to exit the window / and by compatibility for exiting the entire program
-    def _quit_window(self):
+    def quit_window(self):
            self.icon.stop()
            os.abort()
     
     # A function for re-displaying the window
-    def _show_window(self):
+    def show_window(self):
         self.icon.stop()
         self.win.deiconify() #I'll probably leave it here <win.after(0,win.deiconify())>
 
@@ -285,7 +296,8 @@ class TranslyGUI:
 
 if __name__ == "__main__":
     swof = SwitchState()
-    main = TransProches(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, swof)
-    main.check_hotkey() #hot-key check
-    app = TranslyGUI(main.file_icon_path, main.shron, main.push_config_file, swof)
+    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, swof)
+    tlay = TransLayout(tjson)
+    tlay.check_hotkey() #hot-key check
+    app = TranslyGUI(tjson.file_icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
     app.run()
