@@ -1,4 +1,5 @@
 from Transly import TransLayout, SwitchState
+import clipboard
 
 AIL_ALPHABET_LANGUAGE = {
     "ё": "`", "Ё": "~", "й": "q", "Й": "Q", "ц": "w", "Ц": "W", "у": "e", "У": "E", "к": "r", "К": "R", "е": "t", "Е": "T", "н": "y", "Н": "Y", "г": "u", "Г": "U", "ш": "i",
@@ -27,3 +28,13 @@ fake_tjson = type('TransJson', (object,), {
     "dictionary": dictionary, 
     "baf_state": fake_swof
 })()
+
+
+def test_master_keyboard_worker():
+    tl = TransLayout(fake_tjson)
+    assert tl.master_keyboard_worker("Hello World", False) == "Руддщ Цщкдв"
+
+def test_master_keyboard_worker_with_hotkey():
+    tl = TransLayout(fake_tjson)
+    clipboard.copy("Hello World!")
+    assert tl.master_keyboard_worker(tl.selecting_text(), False) == "Руддщ Цщкдв!"
