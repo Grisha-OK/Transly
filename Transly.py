@@ -160,7 +160,7 @@ class TransLayout():
            try:
                if counter == 5:
                    print("превышено количество попыток получения текста из буфера обмена")
-                   return("")
+                   return(clipboard.paste())
             #    if self.baf_state.switch_side2 == True:
             #        CTRL_A()
                if copy == True:
@@ -184,6 +184,8 @@ class TransLayout():
         clipboard.copy(re_print)  #add the finished text to the clipboard
         if paste == True:
             CTRL_V()
+        else:
+            return(re_print)
 
         if self.baf_state.switch_side1 == True: #condition for switching the layout
             SHIFT_ALT()
@@ -202,6 +204,8 @@ class TransLayout():
         clipboard.copy(translation.text)  #add the finished text to the clipboard
         if paste == True:
             CTRL_V()
+        else:
+            return(translation.text)
 
     # Hot-key check
     def check_hotkey(self):
