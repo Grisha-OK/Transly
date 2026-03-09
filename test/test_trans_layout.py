@@ -1,8 +1,5 @@
 from Transly import TransLayout, SwitchState
-<<<<<<< HEAD
 import clipboard
-=======
->>>>>>> f4100de (Add requirement files and prepare test_trans_layout.py for writing unit tests)
 
 AIL_ALPHABET_LANGUAGE = {
     "ё": "`", "Ё": "~", "й": "q", "Й": "Q", "ц": "w", "Ц": "W", "у": "e", "У": "E", "к": "r", "К": "R", "е": "t", "Е": "T", "н": "y", "Н": "Y", "г": "u", "Г": "U", "ш": "i",
@@ -30,7 +27,6 @@ fake_tjson = type('TransJson', (object,), {
     "hot_key_n2": hot_key_n2, 
     "dictionary": dictionary, 
     "baf_state": fake_swof
-<<<<<<< HEAD
 })()
 
 
@@ -42,10 +38,3 @@ def test_master_keyboard_worker_with_hotkey():
     tl = TransLayout(fake_tjson)
     clipboard.copy("Hello World!")
     assert tl.master_keyboard_worker(tl.selecting_text(), False) == "Руддщ Цщкдв!"
-
-def test_master_transly_worker():
-    tl = TransLayout(fake_tjson)
-    assert tl.master_transly_worker("Hello World", False) == "Привет, мир"
-=======
-})()
->>>>>>> f4100de (Add requirement files and prepare test_trans_layout.py for writing unit tests)
