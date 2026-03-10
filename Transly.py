@@ -82,11 +82,11 @@ class TransJson:
         #worcking attributes
         self.baf_state = baf_state
         self.CONSTANT_LIST = {}
-         #self.reate_a_folder()
-        self.icon_path = self.file_icon_path("favicon.ico", "img\\")
-        self.config_path = self.file_config_path("config.json")
-        self.shron = self.json_worker()
-
+        self.icon_path = ""
+        self.config_path = ""
+        self.shron = {}
+    
+    def setting_attributes(self):
         #atributes state in file
         self.baf_state.switch_side1 = self.shron["switch_off"]    #call the language_ru text
         self.hot_key_n1 = self.shron["hot_key_layout"]           #call the hot-key-№1 text
@@ -315,6 +315,10 @@ class TranslyGUI:
 if __name__ == "__main__":
     swof = SwitchState()
     tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, swof)
+    tjson.icon_path = tjson.file_icon_path("favicon.ico", "img\\")
+    tjson.config_path = tjson.file_config_path("config.json")
+    tjson.shron = tjson.json_worker()
+    tjson.setting_attributes()
     tlay = TransLayout(tjson)
     tlay.check_hotkey() #hot-key check
     app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
