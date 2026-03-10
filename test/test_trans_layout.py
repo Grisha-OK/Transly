@@ -24,3 +24,7 @@ def test_master_keyboard_worker_with_hotkey():
     tl = TransLayout(fake_tjson)
     clipboard.copy("Hello World!")
     assert tl.master_keyboard_worker(tl.selecting_text(), False) == "Руддщ Цщкдв!"
+
+def test_master_transly_worker():
+    tl = TransLayout(fake_tjson)
+    assert tl.master_transly_worker("Hello World", False) == "Привет, мир"
