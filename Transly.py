@@ -18,7 +18,6 @@ import json
 import os
 import getpass
 import ctypes
-import shutil
 import sys
 
 # GUI modules
@@ -48,12 +47,17 @@ def CTRL_C():
     ctypes.windll.user32.keybd_event(0x11, 0, 0, 0)  # Ctrl down
     ctypes.windll.user32.keybd_event(0x43, 0, 0, 0)  # C down
     ctypes.windll.user32.keybd_event(0x43, 0, 2, 0)  # C up
-    ctypes.windll.user32.keybd_event(0x11, 0, 2, 0)  # Ctrl up    
+    ctypes.windll.user32.keybd_event(0x11, 0, 2, 0)  # Ctrl up
 def CTRL_V():
     ctypes.windll.user32.keybd_event(0x11, 0, 0, 0)  # Ctrl down
     ctypes.windll.user32.keybd_event(0x56, 0, 0, 0)  # V down
     ctypes.windll.user32.keybd_event(0x56, 0, 2, 0)  # V up
     ctypes.windll.user32.keybd_event(0x11, 0, 2, 0)  # Ctrl up
+def CTRL_A():
+    ctypes.windll.user32.keybd_event(0x11, 0, 0, 0)  # Ctrl down
+    ctypes.windll.user32.keybd_event(0x41, 0, 0, 0)  # A down
+    ctypes.windll.user32.keybd_event(0x41, 0, 2, 0)  # A up
+    ctypes.windll.user32.keybd_event(0x11, 0, 2, 0)  # Ctrl up 
 def SHIFT_ALT():
     ctypes.windll.user32.keybd_event(0x10, 0, 0, 0)  # Shift down
     ctypes.windll.user32.keybd_event(0x12, 0, 0, 0)  # Alt down
@@ -78,8 +82,9 @@ class TransJson:
         #worcking attributes
         self.baf_state = baf_state
         self.CONSTANT_LIST = {}
-        self.path = self.reate_a_folder()
-        self.file_icon_path = self.file_path("favicon.ico")
+         #self.reate_a_folder()
+        self.icon_path = self.file_icon_path("favicon.ico", "img\\")
+        self.config_path = self.file_config_path("config.json")
         self.shron = self.json_worker()
 
         #atributes state in file
@@ -91,30 +96,37 @@ class TransJson:
         self.dictionary = self.shron["alphabet_language"]        #call the dictionary text
 
     # Function to create a folder for storing the service file
-    def reate_a_folder(self):
-        username = getpass.getuser()
-        path = (f"C:/Users/{username}/.transly")
+    def create_a_folder(self, where):
         try:
-            os.makedirs(f"{path}/img")
-            return(path)
+            os.makedirs(where)
+            return(where)
         except:
-            return(path)
-    
-    # Function to find the path to the file directory
-    def file_path(self, tild):
+            return(where)
+        
+    def we_compiled(self):
+        path_to_main_file = os.path.realpath(__file__)
+        if "Temp" in path_to_main_file: #condition for checking if the file is compiled
+            return(True)
+        else:
+            return(False)
+
+    # Function to find the path to the file icon directory
+    def file_icon_path(self, file, folder_path = None):
         name_file = os.path.basename(__file__)
-        path_to_file = os.path.realpath(__file__).replace(name_file, tild)
-        if "Temp" in path_to_file: #condition for checking if the file is compiled
-            return(path_to_file)
-        elif "GitHub" in path_to_file: #condition for checking if the file is development
-            shutil.copy(path_to_file, f"{self.path}/img/favicon.ico") #copy the picture to the working directory
-            return(path_to_file)
-        else:  
-            try:
-                shutil.move(path_to_file, f"{self.path}/img/favicon.ico") #move the picture to the working directory
-                return(f"{self.path}/img/favicon.ico")
-            except:
-                return(f"{self.path}/img/favicon.ico")
+
+        if self.we_compiled() == True: #condition for checking if the file is compiled
+            return(os.path.realpath(__file__).replace(name_file, file))
+        else:
+            return(os.path.realpath(__file__).replace(name_file, folder_path+file))
+    
+    # Function to find the path to the file config directory
+    def file_config_path(self, file, folder_path = None):
+        name_file = os.path.basename(__file__)
+
+        if self.we_compiled() == True: #condition for checking if the file is compiled
+            return(self.create_a_folder(f"C:/Users/{getpass.getuser()}/.transly")+file)
+        else:
+            return(self.create_a_folder((os.path.realpath(__file__)))+file)
     
     # Function to assemble text for JSON deserialization
     def mergiing(self, nomber, text):
@@ -132,13 +144,13 @@ class TransJson:
     
     # Function to create json file
     def push_config_file(self, const_shron_dump):
-        with open(f"{self.path}/dictionary.json", "w") as write_file:
+        with open(self.config_path, "w") as write_file:
             json.dump(dict(const_shron_dump), write_file, indent=4)
     
     # Function to encode text settings in it
     def json_worker(self):
         try:
-            with open(f"{self.path}/dictionary.json", "r") as write_file: #file opened only in the with open construct
+            with open(self.config_path, "r") as write_file: #file opened only in the with open construct
                 interlayer = {}
                 interlayer = json.loads(write_file.read())
                 return(interlayer) 
@@ -216,9 +228,9 @@ class TransLayout():
             return
     
 class TranslyGUI:
-    def __init__(self, file_icon_path, shron, push_config_file, baf_state, icon, menu, item):
+    def __init__(self, icon_path, shron, push_config_file, baf_state, icon, menu, item):
 
-        self.file_icon_path = file_icon_path
+        self.icon_path = icon_path
         self.shron = shron
         self.push_config_file = push_config_file
         self.baf_state = baf_state
@@ -229,7 +241,7 @@ class TranslyGUI:
         # Create an instance of the tkinter frame or window
         self.win = customtkinter.CTk()
         self.win.title("Transly")
-        self.win.iconbitmap(file_icon_path)
+        self.win.iconbitmap(self.icon_path)
         self.win.geometry("300x85")
         customtkinter.set_widget_scaling(0.85)
 
@@ -281,7 +293,7 @@ class TranslyGUI:
     # Hide the window and show it on the system taskbar
     def _hide_window(self):
        self.win.withdraw()
-       image = Image.open(self.file_icon_path)
+       image = Image.open(self.icon_path)
        menu = (item('Quit', lambda : self.quit_window()),
                item('Show', lambda : self.show_window()))
        self.icon = icon("name", image, "Trans Translation", menu)
@@ -305,5 +317,5 @@ if __name__ == "__main__":
     tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, swof)
     tlay = TransLayout(tjson)
     tlay.check_hotkey() #hot-key check
-    app = TranslyGUI(tjson.file_icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
+    app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
     app.run()
