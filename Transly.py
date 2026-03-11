@@ -69,8 +69,7 @@ class SwitchState:
         self.switch_side1 = None
 
 class TransJson:
-    def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, baf_state):
- 
+    def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF):
         #for clarity, i'm thowing constant =D
         self.ALPHABET_LANGUAGE = ALPHABET_LANGUAGE
         self.HOT_KEY_LAYOUT = HOT_KEY_LAYOUT
@@ -78,22 +77,6 @@ class TransJson:
         self.LANGUAGE_EN = LANGUAGE_EN
         self.LANGUAGE_RU = LANGUAGE_RU
         self.SWITCH_OFF = SWITCH_OFF
-
-        #worcking attributes
-        self.baf_state = baf_state
-        self.CONSTANT_LIST = {}
-        self.icon_path = ""
-        self.config_path = ""
-        self.shron = {}
-    
-    def setting_attributes(self):
-        #atributes state in file
-        self.baf_state.switch_side1 = self.shron["switch_off"]    #call the language_ru text
-        self.hot_key_n1 = self.shron["hot_key_layout"]           #call the hot-key-№1 text
-        self.hot_key_n2 = self.shron["hot_key_translation"]      #call the hot-key-№2 text
-        self.language_1 = self.shron["language_en"]              #call the language_en text
-        self.language_2 = self.shron["language_ru"]              #call the language_ru text
-        self.dictionary = self.shron["alphabet_language"]        #call the dictionary text
 
     # Function to create a folder for storing the service file
     def create_a_folder(self, where):
@@ -141,6 +124,23 @@ class TransJson:
         self.mergiing("language_ru", self.LANGUAGE_RU)                 #call the text assembly for JSON deserialization with key 5 and value language_ru
         self.mergiing("alphabet_language", self.ALPHABET_LANGUAGE)     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
         return(self.CONSTANT_LIST)
+
+    def setting_attributes(self, baf_state, icon_path, config_path):
+        #worcking attributes
+        self.baf_state = baf_state
+        self.CONSTANT_LIST = {}
+         #self.reate_a_folder()
+        self.icon_path = icon_path
+        self.config_path = config_path
+        self.shron = self.json_worker()
+
+        #atributes state in file
+        self.baf_state.switch_side1 = self.shron["switch_off"]    #call the language_ru text
+        self.hot_key_n1 = self.shron["hot_key_layout"]           #call the hot-key-№1 text
+        self.hot_key_n2 = self.shron["hot_key_translation"]      #call the hot-key-№2 text
+        self.language_1 = self.shron["language_en"]              #call the language_en text
+        self.language_2 = self.shron["language_ru"]              #call the language_ru text
+        self.dictionary = self.shron["alphabet_language"]        #call the dictionary text
     
     # Function to create json file
     def push_config_file(self, const_shron_dump):
@@ -314,11 +314,8 @@ class TranslyGUI:
 
 if __name__ == "__main__":
     swof = SwitchState()
-    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF, swof)
-    tjson.icon_path = tjson.file_icon_path("favicon.ico", "img\\")
-    tjson.config_path = tjson.file_config_path("config.json")
-    tjson.shron = tjson.json_worker()
-    tjson.setting_attributes()
+    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
+    tjson.setting_attributes(swof, tjson.file_icon_path("favicon.ico", "img\\"), tjson.file_config_path("config.json"))
     tlay = TransLayout(tjson)
     tlay.check_hotkey() #hot-key check
     app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
