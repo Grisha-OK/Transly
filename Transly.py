@@ -165,6 +165,8 @@ class TransLayout():
         self.hot_key_n2 = trans_json.hot_key_n2
         self.dictionary = trans_json.dictionary
         self.baf_state = trans_json.baf_state
+        self.language_1 = trans_json.language_1
+        self.language_2 = trans_json.language_2
 
     # Function for extracting text from the input hoop
     def selecting_text(self, copy=True):
