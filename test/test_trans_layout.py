@@ -19,6 +19,8 @@ hot_key_n1 = HOT_KEY_LAYOUT
 HOT_KEY_TRANSLATION = ("ctrl + F8")
 hot_key_n2 = HOT_KEY_TRANSLATION
 
+LANGUAGE_EN = ("en")
+LANGUAGE_RU = ("ru")
 
 fake_swof = SwitchState()
 
@@ -26,7 +28,9 @@ fake_tjson = type('TransJson', (object,), {
     "hot_key_n1": hot_key_n1, 
     "hot_key_n2": hot_key_n2, 
     "dictionary": dictionary, 
-    "baf_state": fake_swof
+    "baf_state": fake_swof,
+    "language_1" : LANGUAGE_EN,
+    "language_2" : LANGUAGE_RU
 })()
 
 
