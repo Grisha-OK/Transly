@@ -22,7 +22,7 @@ import sys
 
 # GUI modules
 from tkinter import Tk
-import customtkinter #pip install customtkinter
+import customtkinter
 
 # So-called alphabet
 ALPHABET_LANGUAGE = {
@@ -64,11 +64,15 @@ def SHIFT_ALT():
     ctypes.windll.user32.keybd_event(0x12, 0, 2, 0)  # Alt up
     ctypes.windll.user32.keybd_event(0x10, 0, 2, 0)  # Shift up
 
+# General storage switch value
 class SwitchState:
+    '''Class for storing the value of the layout switch, which is used in different parts of the program'''
     def __init__(self):
         self.switch_side1 = None
 
 class TransJson:
+    '''
+    Class for working with JSON file, which stores the settings of the program, and also for working with the file system in general'''
     def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF):
         #for clarity, i'm thowing constant =D
         self.ALPHABET_LANGUAGE = ALPHABET_LANGUAGE
@@ -80,13 +84,19 @@ class TransJson:
 
     # Function to create a folder for storing the service file
     def create_a_folder(self, where):
+        '''
+        Function to create a folder for storing the service file, which is used to store the settings of the program
+        where - the path to the folder, which is used to store the settings of the program
+        '''
         try:
             os.makedirs(where)
             return(where)
         except:
             return(where)
         
+    # Function to check if the file is compiled, which is used to determine the path to the file icon and config directory
     def we_compiled(self):
+        '''Function to check if the file is compiled, which is used to determine the path to the file icon and config directory'''
         path_to_main_file = os.path.realpath(__file__)
         if "Temp" in path_to_main_file: #condition for checking if the file is compiled
             return(True)
@@ -95,6 +105,11 @@ class TransJson:
 
     # Function to find the path to the file icon directory
     def file_icon_path(self, file, folder_path = None):
+        '''
+        Function to find the path to the file icon directory, which is used to store the icon of the program in the system tray
+        file - the name of the icon file
+        folder_path - the relative path to the folder where the configuration file is stored. This is necessary for the file to work both in the compiled and non-compiled state, since the path to the file icon directory is different in these states
+        '''
         name_file = os.path.basename(__file__)
 
         if self.we_compiled() == True: #condition for checking if the file is compiled
@@ -104,6 +119,11 @@ class TransJson:
     
     # Function to find the path to the file config directory
     def file_config_path(self, file, folder_path = None):
+        '''
+        Function to find the path to the file config directory, which is used to store the settings of the program
+        file - the name of the config file
+        #folder_path - the path to the folder where the config file is stored
+        '''
         name_file = os.path.basename(__file__)
 
         if self.we_compiled() == True: #condition for checking if the file is compiled
@@ -113,10 +133,16 @@ class TransJson:
     
     # Function to assemble text for JSON deserialization
     def mergiing(self, nomber, text):
+        '''
+        Function for assembling text for JSON deserialization, which are used in different parts of the program
+        nomber - the key for the text, which is used in different parts of the program
+        text - the value for the text, which is used in different parts of the program
+        '''
         self.CONSTANT_LIST[nomber] = text
     
     # Function for filling a list of constants
     def setting_dap(self):
+        '''Function for filling a list of constants, which are used in different parts of the program'''
         self.mergiing("switch_off", self.SWITCH_OFF)                   #call the text assembly for JSON deserialization with key 1 and value switch_off
         self.mergiing("hot_key_layout", self.HOT_KEY_LAYOUT)           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
         self.mergiing("hot_key_translation", self.HOT_KEY_TRANSLATION) #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
@@ -125,11 +151,17 @@ class TransJson:
         self.mergiing("alphabet_language", self.ALPHABET_LANGUAGE)     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
         return(self.CONSTANT_LIST)
 
+    # Function for setting attributes of the class, which are used in different parts of the program
     def setting_attributes(self, baf_state, icon_path, config_path):
+        '''
+        Function for setting attributes of the class, which are used in different parts of the program
+        baf_state - the value of the layout switch, which is used in different parts of the program
+        icon_path - the path to the file icon directory
+        config_path - the path to the file config directory
+        '''
         #worcking attributes
         self.baf_state = baf_state
         self.CONSTANT_LIST = {}
-         #self.reate_a_folder()
         self.icon_path = icon_path
         self.config_path = config_path
         self.shron = self.json_worker()
@@ -144,11 +176,16 @@ class TransJson:
     
     # Function to create json file
     def push_config_file(self, const_shron_dump):
+        '''
+        Function to write the settings of the program to a JSON file, which is used to store the settings of the program
+        const_shron_dump - the settings of the program, which is used to store the settings of the program
+        '''
         with open(self.config_path, "w") as write_file:
             json.dump(dict(const_shron_dump), write_file, indent=4)
     
     # Function to encode text settings in it
     def json_worker(self):
+        '''Function for working with JSON file, which stores the settings of the program, and also for working with the file system in general'''
         try:
             with open(self.config_path, "r") as write_file: #file opened only in the with open construct
                 interlayer = {}
@@ -161,6 +198,7 @@ class TransJson:
         
 class TransLayout():
     def __init__(self, trans_json):
+        #forwarding attributes from TransJson, including hot class, language, and switch state attributes
         self.hot_key_n1 = trans_json.hot_key_n1
         self.hot_key_n2 = trans_json.hot_key_n2
         self.dictionary = trans_json.dictionary
@@ -170,6 +208,10 @@ class TransLayout():
 
     # Function for extracting text from the input hoop
     def selecting_text(self, copy=True):
+        '''
+        Function for extracting text from the input hoop, which is used to get the text that the user wants to translate or change the layout of
+        copy - a boolean value that determines whether to copy the text from the input hoop or not, which is used to get the text that the user wants to translate or change the layout of
+        '''
         def clip_get(counter=0):
            try:
                if counter == 5:
@@ -188,6 +230,11 @@ class TransLayout():
     
     # Function for copying, translating, assembling and pasting text
     def master_keyboard_worker(self, select_text, paste=True):
+        '''
+        The main function of character-by-character translation of text from a dictionary, layout and insertion of text, used to change the layout of the text that the user wants to change.
+        select_text - the text that the user wants to change the layout of, which is used to change the layout of the text that the user wants to change the layout of
+        paste - a boolean value that determines whether to paste the text after changing the layout or not, which is used to change the layout of the text that the user wants to change the layout of
+        '''
         re_print = ''
         #preparing the copied text
         for i in select_text:
@@ -206,6 +253,11 @@ class TransLayout():
     
     # Function for working with Google translator
     def master_transly_worker(self, select_text, paste=True):
+        '''
+        The main function for working with Google translator, which is used to translate the text that the user wants to translate.
+        select_text - the text that the user wants to translate, which is used to translate the text that the user wants to translate
+        paste - a boolean value that determines whether to paste the text after translating or not, which is used to translate the text that the user wants to translate
+        '''
         translator = Translator()
         detected = translator.detect(select_text)
         if detected.lang == self.language_1:
@@ -223,6 +275,7 @@ class TransLayout():
 
     # Hot-key check
     def check_hotkey(self):
+        '''Hot-key check, which is used to set up the hot-keys for changing the layout and translating the text that the user wants to change the layout of or translate'''
         try:
             keyboard.add_hotkey(self.hot_key_n1, lambda: self.master_keyboard_worker(self.selecting_text()))
             keyboard.add_hotkey(self.hot_key_n2, lambda: self.master_transly_worker(self.selecting_text()))
