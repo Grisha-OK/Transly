@@ -103,6 +103,21 @@ class TransJson:
         else:
             return(False)
 
+    # Function to create an icon if it does not exist, which is used to create an icon for the program in the system tray if it does not exist   
+    def ensure_icon_exists(self, path_to_target_file, color=(70, 70, 70), size=(256, 256)):
+            '''
+            Function to create an icon if it does not exist, which is used to create an icon for the program in the system tray if it does not exist
+            path_to_target_file - the path to the file icon directory, which is used to store the icon of the program in the system tray
+            color - the color of the icon, which is used to create an icon for the program in the system tray if it does not exist
+            size - the size of the icon, which is used to create an icon for the program in the system tray if it does not exist
+            '''
+            if not os.path.exists(path_to_target_file):
+                print(f"Иконка не найдена. Создаю иконку по пути: {path_to_target_file}")
+                img = Image.new("RGB", size, color=color)
+                os.makedirs(os.path.dirname(path_to_target_file) if os.path.dirname(path_to_target_file) else ".", exist_ok=True)
+                img.save(path_to_target_file, format="ICO")
+            return(path_to_target_file)
+
     # Function to find the path to the file icon directory
     def file_icon_path(self, file, folder_path = None):
         '''
@@ -112,13 +127,16 @@ class TransJson:
         '''
         name_file = os.path.basename(__file__)
 
-        if self.we_compiled() == True: #condition for checking if the file is compiled
-            return(os.path.realpath(__file__).replace(name_file, file))
+        if self.we_compiled(): #condition for checking if the file is compiled
+            path_to_icon_config = (os.path.realpath(__file__).replace(name_file, file))
+            return(self.ensure_icon_exists(path_to_icon_config))
         else:
-            return(os.path.realpath(__file__).replace(name_file, folder_path+file))
+            path_to_icon_config = (os.path.realpath(__file__).replace(name_file, folder_path+file))
+            return(self.ensure_icon_exists(path_to_icon_config))
+
     
     # Function to find the path to the file config directory
-    def file_config_path(self, file, folder_path = None):
+    def file_config_path(self, file, folder_path = ''):
         '''
         Function to find the path to the file config directory, which is used to store the settings of the program
         file - the name of the config file
@@ -126,10 +144,11 @@ class TransJson:
         '''
         name_file = os.path.basename(__file__)
 
-        if self.we_compiled() == True: #condition for checking if the file is compiled
+        if self.we_compiled(): #condition for checking if the file is compiled
             return(self.create_a_folder(f"C:/Users/{getpass.getuser()}/.transly")+file)
         else:
-            return(self.create_a_folder((os.path.realpath(__file__)))+file)
+            path_to_json_config = (os.path.realpath(__file__).replace(name_file, folder_path))
+            return(self.create_a_folder(path_to_json_config)+(file))
     
     # Function to assemble text for JSON deserialization
     def mergiing(self, nomber, text):
@@ -219,7 +238,7 @@ class TransLayout():
                    return(clipboard.paste())
             #    if self.baf_state.switch_side2 == True:
             #        CTRL_A()
-               if copy == True:
+               if copy:
                    CTRL_C()
                return(Tk().clipboard_get())
            except:
@@ -248,7 +267,7 @@ class TransLayout():
         else:
             return(re_print)
 
-        if self.baf_state.switch_side1 == True: #condition for switching the layout
+        if self.baf_state.switch_side1: #condition for switching the layout
             SHIFT_ALT()
     
     # Function for working with Google translator
@@ -268,7 +287,7 @@ class TransLayout():
             for_translation = "en"
         translation = translator.translate(select_text, dest=for_translation)
         clipboard.copy(translation.text)  #add the finished text to the clipboard
-        if paste == True:
+        if paste:
             CTRL_V()
         else:
             return(translation.text)
@@ -332,7 +351,7 @@ class TranslyGUI:
             offvalue="off", command=lambda: self._toggle_switch())
         self.toggle_button.pack(side='top')
         
-        if self.baf_state.switch_side1 == True:
+        if self.baf_state.switch_side1:
             self.toggle_button.select()
    
     #Check window closing and tray icon initialization

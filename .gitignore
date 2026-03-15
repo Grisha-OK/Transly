@@ -3,4 +3,5 @@
 
 **/__pycache__/
 *.pyc
-Transly.pyconfig.json
+config.json
+temp_test_folder/
