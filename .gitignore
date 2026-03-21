@@ -1,0 +1,7 @@
+.vscode/*
+.venv/*
+
+**/__pycache__/
+*.pyc
+config.json
+temp_test_folder/

@@ -52,3 +52,15 @@ pip install pystray
 ```bash
 pip install keyboard
 ```
+Переводчик Google translate
+```bash
+pip install googletrans
+```
+GUI библиотека
+```bash
+pip install customtkinter
+```
+Пакет PIL, а конкретно модуль Image. Создаёт обьект изображения.
+```bash
+pip install pillow
+```
