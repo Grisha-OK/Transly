@@ -236,7 +236,7 @@ class TransLayout():
                if counter == 5:
                    print("превышено количество попыток получения текста из буфера обмена")
                    return(clipboard.paste())
-            #    if self.baf_state.switch_side2 == True:
+            #    if self.baf_state.switch_side2 and copy == True:
             #        CTRL_A()
                if copy:
                    CTRL_C()
