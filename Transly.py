@@ -3,20 +3,20 @@ I apologize for this appeal :D
                                     
 """    
 
-# pip install ...
 # External libraries
 import clipboard
 import keyboard
 
 from googletrans import Translator
 from pystray import Icon as icon, Menu as menu, MenuItem as item
-from PIL import Image #pip install pillow
+from PIL import Image
 
 # Standard Python modules
+from pathlib import Path
 import time
 import json
 import os
-import getpass
+#import getpass
 import ctypes
 import sys
 
@@ -81,75 +81,71 @@ class TransJson:
         self.LANGUAGE_EN = LANGUAGE_EN
         self.LANGUAGE_RU = LANGUAGE_RU
         self.SWITCH_OFF = SWITCH_OFF
-
-    # Function to create a folder for storing the service file
-    def create_a_folder(self, where):
-        '''
-        Function to create a folder for storing the service file, which is used to store the settings of the program
-        where - the path to the folder, which is used to store the settings of the program
-        '''
-        try:
-            os.makedirs(where)
-            return(where)
-        except:
-            return(where)
         
     # Function to check if the file is compiled, which is used to determine the path to the file icon and config directory
     def we_compiled(self):
         '''Function to check if the file is compiled, which is used to determine the path to the file icon and config directory'''
+        if getattr(sys, 'frozen', False):
+            # Если скрипт скомпилирован
+            print("Запущено из скомпилированного файла (PyInstaller)")
+        else:
+            # Если это обычный .py файл
+            print("Запущено как обычный скрипт Python")        
         path_to_main_file = os.path.realpath(__file__)
         if "Temp" in path_to_main_file: #condition for checking if the file is compiled
             return(True)
         else:
             return(False)
 
-    # Function to create an icon if it does not exist, which is used to create an icon for the program in the system tray if it does not exist   
-    def ensure_icon_exists(self, path_to_target_file, color=(70, 70, 70), size=(256, 256)):
-            '''
-            Function to create an icon if it does not exist, which is used to create an icon for the program in the system tray if it does not exist
-            path_to_target_file - the path to the file icon directory, which is used to store the icon of the program in the system tray
-            color - the color of the icon, which is used to create an icon for the program in the system tray if it does not exist
-            size - the size of the icon, which is used to create an icon for the program in the system tray if it does not exist
-            '''
-            if not os.path.exists(path_to_target_file):
-                print(f"Иконка не найдена. Создаю иконку по пути: {path_to_target_file}")
-                img = Image.new("RGB", size, color=color)
-                os.makedirs(os.path.dirname(path_to_target_file) if os.path.dirname(path_to_target_file) else ".", exist_ok=True)
-                img.save(path_to_target_file, format="ICO")
-            return(path_to_target_file)
-
     # Function to find the path to the file icon directory
-    def file_icon_path(self, file, folder_path = None):
+    def file_icon_path(self, file, folder_path = ""):
         '''
         Function to find the path to the file icon directory, which is used to store the icon of the program in the system tray
         file - the name of the icon file
         folder_path - the relative path to the folder where the configuration file is stored. This is necessary for the file to work both in the compiled and non-compiled state, since the path to the file icon directory is different in these states
         '''
-        name_file = os.path.basename(__file__)
-
+        path_main_file = Path(__file__).resolve()
+        path_to_nain_folder = path_main_file.parent
         if self.we_compiled(): #condition for checking if the file is compiled
-            path_to_icon_config = (os.path.realpath(__file__).replace(name_file, file))
-            return(self.ensure_icon_exists(path_to_icon_config))
+            path_to_icon_config = path_to_nain_folder / file
         else:
-            path_to_icon_config = (os.path.realpath(__file__).replace(name_file, folder_path+file))
-            return(self.ensure_icon_exists(path_to_icon_config))
+            path_to_icon_config = path_to_nain_folder / folder_path / file
+        # Function to create an icon if it does not exist, which is used to create an icon for the program in the system tray if it does not exist   
+        def ensure_icon_exists(path_to_target_file, color=(70, 70, 70), size=(256, 256)):
+            if not os.path.exists(path_to_target_file):
+                print(f"Иконка не найдена. Создаю иконку по пути: {path_to_target_file}")
+                img = Image.new("RGB", size, color=color)
+                os.makedirs(os.path.dirname(path_to_target_file) if os.path.dirname(path_to_target_file) else ".", exist_ok=True)
+                img.save(path_to_target_file, format="ICO")
+            return()
+        ensure_icon_exists(str(path_to_icon_config))
+        return(str(path_to_icon_config))
 
     
     # Function to find the path to the file config directory
-    def file_config_path(self, file, folder_path = ''):
+    def file_config_path(self, file, folder_path = ""):
         '''
         Function to find the path to the file config directory, which is used to store the settings of the program
         file - the name of the config file
         #folder_path - the path to the folder where the config file is stored
         '''
-        name_file = os.path.basename(__file__)
-
+        user_home = Path.home()
+        path_main_file = Path(__file__).resolve()
+        path_to_nain_folder = path_main_file.parent
         if self.we_compiled(): #condition for checking if the file is compiled
-            return(self.create_a_folder(f"C:/Users/{getpass.getuser()}/.transly")+file)
+            path_to_json_config = user_home / folder_path / file
         else:
-            path_to_json_config = (os.path.realpath(__file__).replace(name_file, folder_path))
-            return(self.create_a_folder(path_to_json_config)+(file))
-    
+            path_to_json_config = path_to_nain_folder / file
+        # Function to create a folder for storing the service file
+        def create_a_folder(where):
+            try:
+                os.makedirs(where)
+                return(where)
+            except:
+                return(where)
+        create_a_folder(str(path_to_nain_folder))
+        return(str(path_to_json_config))
+
     # Function to assemble text for JSON deserialization
     def mergiing(self, nomber, text):
         '''
@@ -389,7 +385,7 @@ class TranslyGUI:
 if __name__ == "__main__":
     swof = SwitchState()
     tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
-    tjson.setting_attributes(swof, tjson.file_icon_path("favicon.ico", "img\\"), tjson.file_config_path("config.json"))
+    tjson.setting_attributes(swof, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
     tlay = TransLayout(tjson)
     tlay.check_hotkey() #hot-key check
     app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
