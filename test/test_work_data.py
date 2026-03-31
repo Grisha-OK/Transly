@@ -114,9 +114,6 @@ def test_master_json_copy_icon(temp_folder_env):
 def test_master_json_config(temp_folder_env):
     # Подготавливаем путь (добавляем слеш для вашей функции)
     folder_arg = Path(f"test\{temp_folder_env}").resolve()
-    print("Путь к тестовой папке:", Path(temp_folder_env).resolve())
-    print("Путь к тестовой папке:", Path(folder_arg).resolve())
-    print(folder_arg)
 
     tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, 
                       LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
@@ -124,10 +121,6 @@ def test_master_json_config(temp_folder_env):
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
     config_path = tjson.file_config_path("config_test.json", folder_arg)
-    
-    print("----------------------------------------")
-    print(icon_path, "\n", config_path)
-    print("----------------------------------------")
 
     tjson.setting_attributes(fake_swof, icon_path, config_path)
     
