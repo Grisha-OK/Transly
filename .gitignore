@@ -5,3 +5,4 @@
 *.pyc
 config.json
 temp_test_folder/
+config_test.json
