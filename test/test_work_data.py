@@ -1,6 +1,5 @@
 import pytest
 import shutil
-import getpass
 import os
 from pathlib import Path
 from Transly import TransJson, SwitchState
@@ -18,36 +17,6 @@ def source_img(file):
     # 3. Полный путь к файлу
     file_path = target_folder / file
     return str(file_path)
-
-# def we_compiled():
-#     path_to_main_file = os.path.realpath(__file__)
-#     if "Temp" in path_to_main_file: #condition for checking if the file is compiled
-#         return(True)
-#     else:
-#         return(False)
-
-# def file_icon_path(file, folder_path = ''):
-#     name_file = os.path.basename(__file__)
-#     if we_compiled(): #condition for checking if the file is compiled
-#         path_to_icon_config = (os.path.realpath(__file__).replace(name_file, file))
-#         return(path_to_icon_config)
-#     else:
-#         path_to_icon_config = (os.path.realpath(__file__).replace(name_file, folder_path+file))
-#         return(path_to_icon_config)
-    
-# def file_config_path(file, folder_path = ''):
-#     '''
-#     Function to find the path to the file config directory, which is used to store the settings of the program
-#     file - the name of the config file
-#     #folder_path - the path to the folder where the config file is stored
-#     '''
-#     name_file = os.path.basename(__file__)
-#     if we_compiled(): #condition for checking if the file is compiled
-#         return((f"C:/Users/{getpass.getuser()}/.transly")+file)
-#     else:
-#         path_to_json_config = (os.path.realpath(__file__).replace(name_file, folder_path))
-#         return((path_to_json_config)+(file))
-    
 
 @pytest.fixture
 def temp_folder_env():
@@ -71,7 +40,7 @@ def temp_folder_env():
 
 def test_master_json_icon(temp_folder_env):
     # Подготавливаем путь (добавляем слеш для вашей функции)
-    folder_arg = Path(f"test\{temp_folder_env}")
+    folder_arg = Path("test", temp_folder_env).resolve()
     
     tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, 
                       LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
@@ -90,7 +59,7 @@ def test_master_json_icon(temp_folder_env):
 
 def test_master_json_copy_icon(temp_folder_env):
     # Подготавливаем путь (добавляем слеш для вашей функции)
-    folder_arg = Path(f"test\{temp_folder_env}")
+    folder_arg = Path("test", temp_folder_env).resolve()
 
     # Копируем файл в тестовую папку
     test_icon_path = Path(f"{folder_arg}\\favicon_test.ico")
@@ -113,7 +82,7 @@ def test_master_json_copy_icon(temp_folder_env):
 
 def test_master_json_config(temp_folder_env):
     # Подготавливаем путь (добавляем слеш для вашей функции)
-    folder_arg = Path(f"test\{temp_folder_env}").resolve()
+    folder_arg = Path("test", temp_folder_env).resolve()
 
     tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, 
                       LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
