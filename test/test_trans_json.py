@@ -3,6 +3,7 @@ import shutil
 import getpass
 import random
 import os
+from pathlib import Path
 from Transly import TransJson, SwitchState
 from constant import *
 
@@ -78,15 +79,15 @@ def temp_folder_env():
 ])
 def test_master_json_config_text(temp_folder_env, alphabet_language, hot_key_layout, hot_key_translation, language_en, language_ru, switch_off):
     # Подготавливаем путь (добавляем слеш для вашей функции)
-    folder_arg = f"{temp_folder_env}\\"
+    folder_arg = Path("test", temp_folder_env).resolve()
     
     tjson = TransJson(alphabet_language, hot_key_layout, hot_key_translation,
                       language_en, language_ru, switch_off)
     
     # Используем путь из фикстуры
-    icon_path = tjson.file_icon_path("favicon_test.ico", f"test\\{folder_arg}")
-    config_path = tjson.file_config_path("config_test.json", f"test\\{folder_arg}")
-    
+    icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
+    config_path = tjson.file_config_path("config_test.json", '', folder_arg)
+
     tjson.setting_attributes(fake_swof, icon_path, config_path)
     
     # Проверка

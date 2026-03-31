@@ -47,7 +47,7 @@ def test_master_json_icon(temp_folder_env):
     
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
-    config_path = tjson.file_config_path("config_test.json", folder_arg)
+    config_path = tjson.file_config_path("config_test.json", '' ,folder_arg)
 
     tjson.setting_attributes(fake_swof, icon_path, config_path)
     
@@ -70,7 +70,7 @@ def test_master_json_copy_icon(temp_folder_env):
     
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
-    config_path = tjson.file_config_path("config_test.json", folder_arg)
+    config_path = tjson.file_config_path("config_test.json", '' ,folder_arg)
 
     tjson.setting_attributes(fake_swof, icon_path, config_path)
 
@@ -89,12 +89,12 @@ def test_master_json_config(temp_folder_env):
     
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
-    config_path = tjson.file_config_path("config_test.json", folder_arg)
+    config_path = tjson.file_config_path("config_test.json", '' ,folder_arg)
 
     tjson.setting_attributes(fake_swof, icon_path, config_path)
     
     # Проверка
-    file_test_folder_json = tjson.file_config_path("config_test.json", folder_arg)
+    file_test_folder_json = tjson.file_config_path("config_test.json", '' ,folder_arg)
     
     assert os.path.exists(file_test_folder_json) is True
     # Как только функция закончится, pytest вернется в фикстуру и выполнит shutil.rmtree

@@ -122,7 +122,7 @@ class TransJson:
         return(str(path_to_icon_config))
 
     # Function to find the path to the file config directory
-    def file_config_path(self, file, folder_path = ""):
+    def file_config_path(self, file, user_folder_path = "", desctop_folder_path = ""):
         '''
         Function to find the path to the file config directory, which is used to store the settings of the program
         file - the name of the config file
@@ -132,9 +132,9 @@ class TransJson:
         path_main_file = Path(__file__).resolve()
         path_to_nain_folder = path_main_file.parent
         if self.we_compiled(): #condition for checking if the file is compiled
-            path_to_json_config = user_home / folder_path / file
+            path_to_json_config = user_home / user_folder_path / file
         else:
-            path_to_json_config = path_to_nain_folder / folder_path / file
+            path_to_json_config = path_to_nain_folder / desctop_folder_path / file
         # Function to create a folder for storing the service file
         def create_a_folder(where):
             try:
