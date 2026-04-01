@@ -85,17 +85,20 @@ class TransJson:
     # Function to check if the file is compiled, which is used to determine the path to the file icon and config directory
     def we_compiled(self):
         '''Function to check if the file is compiled, which is used to determine the path to the file icon and config directory'''
+        path_to_main_file = Path(__file__).resolve()
         if getattr(sys, 'frozen', False):
             # Если скрипт скомпилирован
-            print("Запущено из скомпилированного файла (PyInstaller)")
-        else:
-            # Если это обычный .py файл
-            print("Запущено как обычный скрипт Python")        
-        path_to_main_file = os.path.realpath(__file__)
-        if "Temp" in path_to_main_file: #condition for checking if the file is compiled
+            print(f"Запущено из скомпилированного файла (PyInstaller), по пути: {path_to_main_file}")
             return(True)
         else:
-            return(False)
+            # Если это обычный .py файл
+            print(f"Запущено как обычный скрипт Python, по пути: {path_to_main_file}")
+            return(False)   
+        # path_to_main_file = os.path.realpath(__file__)
+        # if "Temp" in path_to_main_file: #condition for checking if the file is compiled
+        #     return(True)
+        # else:
+        #     return(False)
 
     # Function to find the path to the file icon directory
     def file_icon_path(self, file, folder_path = ""):
