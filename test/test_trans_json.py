@@ -1,6 +1,5 @@
 import pytest
 import shutil
-import getpass
 import random
 import os
 from pathlib import Path
@@ -26,27 +25,6 @@ def shuffle_alphabet(alphabet_dict):
     random.shuffle(values)
     
     return dict(zip(keys, values))
-
-def we_compiled():
-    path_to_main_file = os.path.realpath(__file__)
-    if "Temp" in path_to_main_file: #condition for checking if the file is compiled
-        return(True)
-    else:
-        return(False)
-    
-def file_config_path(file, folder_path = ''):
-    '''
-    Function to find the path to the file config directory, which is used to store the settings of the program
-    file - the name of the config file
-    #folder_path - the path to the folder where the config file is stored
-    '''
-    name_file = os.path.basename(__file__)
-    if we_compiled(): #condition for checking if the file is compiled
-        return((f"C:/Users/{getpass.getuser()}/.transly")+file)
-    else:
-        path_to_json_config = (os.path.realpath(__file__).replace(name_file, folder_path))
-        return((path_to_json_config)+(file))
-    
 
 @pytest.fixture
 def temp_folder_env():
