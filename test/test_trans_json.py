@@ -1,8 +1,8 @@
 import pytest
 import shutil
-import getpass
 import random
 import os
+from pathlib import Path
 from Transly import TransJson, SwitchState
 from constant import *
 
@@ -25,27 +25,6 @@ def shuffle_alphabet(alphabet_dict):
     random.shuffle(values)
     
     return dict(zip(keys, values))
-
-def we_compiled():
-    path_to_main_file = os.path.realpath(__file__)
-    if "Temp" in path_to_main_file: #condition for checking if the file is compiled
-        return(True)
-    else:
-        return(False)
-    
-def file_config_path(file, folder_path = ''):
-    '''
-    Function to find the path to the file config directory, which is used to store the settings of the program
-    file - the name of the config file
-    #folder_path - the path to the folder where the config file is stored
-    '''
-    name_file = os.path.basename(__file__)
-    if we_compiled(): #condition for checking if the file is compiled
-        return((f"C:/Users/{getpass.getuser()}/.transly")+file)
-    else:
-        path_to_json_config = (os.path.realpath(__file__).replace(name_file, folder_path))
-        return((path_to_json_config)+(file))
-    
 
 @pytest.fixture
 def temp_folder_env():
@@ -78,15 +57,15 @@ def temp_folder_env():
 ])
 def test_master_json_config_text(temp_folder_env, alphabet_language, hot_key_layout, hot_key_translation, language_en, language_ru, switch_off):
     # Подготавливаем путь (добавляем слеш для вашей функции)
-    folder_arg = f"{temp_folder_env}\\"
+    folder_arg = Path("test", temp_folder_env).resolve()
     
     tjson = TransJson(alphabet_language, hot_key_layout, hot_key_translation,
                       language_en, language_ru, switch_off)
     
     # Используем путь из фикстуры
-    icon_path = tjson.file_icon_path("favicon_test.ico", f"test\\{folder_arg}")
-    config_path = tjson.file_config_path("config_test.json", f"test\\{folder_arg}")
-    
+    icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
+    config_path = tjson.file_config_path("config_test.json", '', folder_arg)
+
     tjson.setting_attributes(fake_swof, icon_path, config_path)
     
     # Проверка
