@@ -384,7 +384,7 @@ class TranslyGUI:
     def run(self):
         self.win.mainloop() 
 
-if __name__ == "__main__":
+def main():
     swof = SwitchState()
     tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
     tjson.setting_attributes(swof, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
@@ -392,3 +392,6 @@ if __name__ == "__main__":
     tlay.check_hotkey() #hot-key check
     app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
     app.run()
+
+if __name__ == "__main__":
+    main()
