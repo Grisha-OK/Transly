@@ -1,34 +1,27 @@
-from Transly import TransLayout, SwitchState
+from Transly import TransLayout, BacupsShron
 from constant import *
 import clipboard
 
-dictionary = ALPHABET_LANGUAGE
-hot_key_n1 = HOT_KEY_LAYOUT
-hot_key_n2 = HOT_KEY_TRANSLATION
-lan_en = LANGUAGE_EN
-lan_ru = LANGUAGE_RU
-
-fake_swof = SwitchState()
-
-fake_tjson = type('TransJson', (object,), {
-    "hot_key_n1": hot_key_n1, 
-    "hot_key_n2": hot_key_n2, 
-    "dictionary": dictionary, 
-    "baf_state": fake_swof,
-    "language_1" : lan_en,
-    "language_2" : lan_ru
-})()
-
+VALUE_LIST = {
+        "hot_key_layout": HOT_KEY_LAYOUT,
+        "hot_key_translate": HOT_KEY_TRANSLATION,
+        "language_en": LANGUAGE_EN,
+        "language_ru": LANGUAGE_RU,
+        "simvol_alphabet_language": ALPHABET_LANGUAGE,
+        "switch_shift_alt_config": SWITCH_SIFT_ALT
+    }
+fake_shron = BacupsShron()
+fake_shron.atribute_arow(VALUE_LIST)
 
 def test_master_keyboard_worker():
-    tl = TransLayout(fake_tjson)
+    tl = TransLayout(fake_shron)
     assert tl.master_keyboard_worker("Hello World", False) == "Руддщ Цщкдв"
 
 def test_master_keyboard_worker_with_hotkey():
-    tl = TransLayout(fake_tjson)
+    tl = TransLayout(fake_shron)
     clipboard.copy("Hello World!")
     assert tl.master_keyboard_worker(tl.selecting_text(), False) == "Руддщ Цщкдв!"
 
 def test_master_transly_worker():
-    tl = TransLayout(fake_tjson)
+    tl = TransLayout(fake_shron)
     assert tl.master_transly_worker("Hello World", False) == "Привет, мир"
