@@ -3,14 +3,12 @@ import shutil
 import random
 import os
 from pathlib import Path
-from Transly import TransJson, SwitchState
+from Transly import TransJson, BacupsShron
 from constant import *
 
 # Списки доступных значений для рандома
 POSSIBLE_HOTKEYS = ["ctrl + alt", "ctrl + F10", "alt + shift", "ctrl + shift", "cmd + space"]
 POSSIBLE_LANGUAGES = ["en", "fi", "de", "fr"]
-
-fake_swof = SwitchState()
 
 def shuffle_alphabet(alphabet_dict):
     """
@@ -47,33 +45,48 @@ def temp_folder_env():
         shutil.rmtree(full_path)
 
 @pytest.mark.parametrize("alphabet_language, hot_key_layout, hot_key_translation, language_en, language_ru, switch_off", [
-    (ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF),
+    (ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_SIFT_ALT),
     
     (shuffle_alphabet(ALPHABET_LANGUAGE), random.choice(POSSIBLE_HOTKEYS),random.choice(POSSIBLE_HOTKEYS),
-      random.choice(POSSIBLE_LANGUAGES), random.choice(POSSIBLE_LANGUAGES), not(SWITCH_OFF)),
+      random.choice(POSSIBLE_LANGUAGES), random.choice(POSSIBLE_LANGUAGES), not(SWITCH_SIFT_ALT)),
     
     (shuffle_alphabet(ALPHABET_LANGUAGE), random.choice(POSSIBLE_HOTKEYS),random.choice(POSSIBLE_HOTKEYS),
-      random.choice(POSSIBLE_LANGUAGES), random.choice(POSSIBLE_LANGUAGES), (SWITCH_OFF))
+      random.choice(POSSIBLE_LANGUAGES), random.choice(POSSIBLE_LANGUAGES), (SWITCH_SIFT_ALT))
 ])
 def test_master_json_config_text(temp_folder_env, alphabet_language, hot_key_layout, hot_key_translation, language_en, language_ru, switch_off):
     # Подготавливаем путь (добавляем слеш для вашей функции)
     folder_arg = Path("test", temp_folder_env).resolve()
     
-    tjson = TransJson(alphabet_language, hot_key_layout, hot_key_translation,
-                      language_en, language_ru, switch_off)
+    VALUE_LIST = {
+    "hot_key_layout": hot_key_layout,
+    "hot_key_translate": hot_key_translation,
+    "language_en": language_en,
+    "language_ru": language_ru,
+    "simvol_alphabet_language": alphabet_language,
+    "switch_shift_alt_config": switch_off
+    }
+    fake_shron = BacupsShron()
+
+    tjson = TransJson()
     
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
     config_path = tjson.file_config_path("config_test.json", '', folder_arg)
 
-    tjson.setting_attributes(fake_swof, icon_path, config_path)
+    tjson.setting_attributes(fake_shron, VALUE_LIST, icon_path, config_path)
     
+    print("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+    print(hot_key_translation)
+    print("--------------------------------===============================-----------------------------------")
+    print(tjson.shron.hot_key_translate)
+    print("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+
     # Проверка
-    assert (tjson.json_worker())["alphabet_language"] == alphabet_language
-    assert (tjson.json_worker())["hot_key_layout"] == hot_key_layout
-    assert (tjson.json_worker())["hot_key_translation"] == hot_key_translation
-    assert (tjson.json_worker())["language_en"] == language_en
-    assert (tjson.json_worker())["language_ru"] == language_ru
-    assert (tjson.json_worker())["switch_off"] == switch_off
+    assert (tjson.shron.simvol_alphabet_language) == alphabet_language
+    assert (tjson.shron.hot_key_layout) == hot_key_layout
+    assert (tjson.shron.hot_key_translate) == hot_key_translation
+    assert (tjson.shron.language_en) == language_en
+    assert (tjson.shron.language_ru) == language_ru
+    assert (tjson.shron.switch_shift_alt_config) == switch_off
 
     # Как только функция закончится, pytest вернется в фикстуру и выполнит shutil.rmtree
