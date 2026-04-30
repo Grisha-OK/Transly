@@ -109,17 +109,7 @@ class TransJson:
     Class for working with JSON file, which stores the settings of the program, and also for working with the file system in general'''
     def __init__(self):
         pass
-        #self.shron = shron
 
-        #for clarity, i'm thowing constant =D
-        # self.ALPHABET_LANGUAGE = ALPHABET_LANGUAGE
-        # self.HOT_KEY_LAYOUT = HOT_KEY_LAYOUT
-        # self.HOT_KEY_TRANSLATION = HOT_KEY_TRANSLATION
-        # self.LANGUAGE_EN = LANGUAGE_EN
-        # self.LANGUAGE_RU = LANGUAGE_RU
-        # self.SWITCH_OFF = SWITCH_OFF
-
-        
     # Function to check if the file is compiled, which is used to determine the path to the file icon and config directory
     def we_compiled(self):
         '''Function to check if the file is compiled, which is used to determine the path to the file icon and config directory'''
@@ -132,11 +122,6 @@ class TransJson:
             # Если это обычный .py файл
             print(f"Запущено как обычный скрипт Python, по пути: {path_to_main_file}")
             return(False)   
-        # path_to_main_file = os.path.realpath(__file__)
-        # if "Temp" in path_to_main_file: #condition for checking if the file is compiled
-        #     return(True)
-        # else:
-        #     return(False)
 
     # Function to find the path to the file icon directory
     def file_icon_path(self, file, folder_path = ""):
@@ -176,6 +161,7 @@ class TransJson:
             path_to_json_config = user_home / user_folder_path / file
         else:
             path_to_json_config = path_to_nain_folder / desctop_folder_path / file
+        
         # Function to create a folder for storing the service file
         def create_a_folder(where):
             try:
@@ -185,27 +171,6 @@ class TransJson:
                 return(where)
         create_a_folder(str(path_to_nain_folder))
         return(str(path_to_json_config))
-    
-    def shron_alfabet_to_object(self, alphabet_map):
-        print(alphabet_map)
-        # self.shron.switch_shift_alt_config = alphabet_map["switch_shift_alt_config"]
-        # self.shron.hot_key_layout = alphabet_map["hot_key_layout"]
-        # self.shron.hot_key_translation = alphabet_map["hot_key_translation"]
-        # self.shron.language_en = alphabet_map["language_en"]
-        # self.shron.language_ru = alphabet_map["language_ru"]
-        # self.shron.alphabet_language = alphabet_map["alphabet_language"]
-
-    # Function for filling a list of constants
-    # def setting_constant_shron(self):
-    #     '''Function for filling a list of constants, which are used in different parts of the program'''
-    #     CONSTANT_LIST = {}
-    #     CONSTANT_LIST["switch_shift_alt_config"] = self.SWITCH_OFF      #call the text assembly for JSON deserialization with key 1 and value switch_off
-    #     CONSTANT_LIST["hot_key_layout"] = self.HOT_KEY_LAYOUT           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
-    #     CONSTANT_LIST["hot_key_translation"] = self.HOT_KEY_TRANSLATION #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
-    #     CONSTANT_LIST["language_en"] = self.LANGUAGE_EN                 #call the text assembly for JSON deserialization with key 4 and value language_en
-    #     CONSTANT_LIST["language_ru"] = self.LANGUAGE_RU                 #call the text assembly for JSON deserialization with key 5 and value language_ru
-    #     CONSTANT_LIST["alphabet_language"] = self.ALPHABET_LANGUAGE     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
-    #     return(CONSTANT_LIST)
 
     # Function for setting attributes of the class, which are used in different parts of the program
     def setting_attributes(self, shron, VALUE_LIST, icon_path, config_path):
@@ -222,14 +187,6 @@ class TransJson:
         self.icon_path = icon_path
         self.config_path = config_path
         self.json_worker()
-
-        #atributes state in file
-        # self.baf_state.switch_side1 = self.shron["switch_off"]    #call the language_ru text
-        # self.hot_key_n1 = self.shron_list["hot_key_layout"]           #call the hot-key-№1 text
-        # self.hot_key_n2 = self.shron_list["hot_key_translation"]      #call the hot-key-№2 text
-        # self.language_1 = self.shron_list["language_en"]              #call the language_en text
-        # self.language_2 = self.shron_list["language_ru"]              #call the language_ru text
-        # self.dictionary = self.shron_list["alphabet_language"]        #call the dictionary text
     
     # Function to create json file
     def push_config_file(self, const_shron_dump):
@@ -260,12 +217,6 @@ class TransLayout():
     def __init__(self, shron):
         #forwarding attributes from TransJson, including hot class, language, and switch state attributes
         self.shron = shron
-        # self.hot_key_n1 = trans_json.hot_key_n1
-        # self.hot_key_n2 = trans_json.hot_key_n2
-        # self.dictionary = trans_json.dictionary
-        # self.baf_state = trans_json.baf_state
-        # self.language_1 = trans_json.language_1
-        # self.language_2 = trans_json.language_2
 
     # Function for extracting text from the input hoop
     def selecting_text(self, copy=True):
@@ -344,12 +295,11 @@ class TransLayout():
             return
     
 class TranslyGUI:
-    def __init__(self, icon_path, shron, push_config_file, baf_state, icon, menu, item):
+    def __init__(self, shron, icon_path, push_config_file, icon, menu, item):
 
         self.icon_path = icon_path
         self.shron = shron
         self.push_config_file = push_config_file
-        self.baf_state = baf_state
         self.icon = icon
         self.menu = menu
         self.item = item
@@ -403,7 +353,7 @@ class TranslyGUI:
     # Function true/false switch
     def _toggle_switch(self):
         self.shron.switch_shift_alt_config = not(self.shron.switch_shift_alt_config)
-        self.push_config_file(self.shron)
+        self.push_config_file(self.shron.atreibute_list_value())
     
     # Hide the window and show it on the system taskbar
     def _hide_window(self):
@@ -437,12 +387,11 @@ def main():
         "alphabet_language": ALPHABET_LANGUAGE
     }
     shron = BacupsShron()
-    #shron.atribute_arow(VALUE_LIST)
     tjson = TransJson()
     tjson.setting_attributes(shron, VALUE_LIST, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
     tlay = TransLayout(shron)
     tlay.check_hotkey() #hot-key check
-    app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, shron, icon, menu, item)
+    app = TranslyGUI(shron, tjson.icon_path, tjson.push_config_file, icon, menu, item)
     app.run()
 
 if __name__ == "__main__":
