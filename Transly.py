@@ -67,15 +67,22 @@ def SHIFT_ALT():
 
 # General storage switch value
 class BacupsShron:
-    '''Class for '''
+    '''A class for storing and working with system variables and values ​​from a backup.'''
     def __init__(self):
         pass
 
     def atribute_arow(self, busup_dict):
+        '''
+        A function for setting attributes of the class
+        busup_dict - a dictionary with the names of the attributes as keys and their values as values
+        '''
         for key, value in busup_dict.items():
             setattr(self, key, value)
     
     def atribute_list(self):
+        '''
+        A function for getting a list of the names of the attributes of the class
+        '''
         members = inspect.getmembers(self)
         only_vars = [
             m[0] for m in members
@@ -84,6 +91,9 @@ class BacupsShron:
         return(only_vars)
     
     def atreibute_list_value(self):
+        '''
+        A function for getting a dictionary of the names of the attributes of the class as keys and their values as values
+        '''
         list_value = {}
         for i in self.atribute_list():
             list_value[i] = getattr(self, i)
@@ -91,8 +101,9 @@ class BacupsShron:
 
     def push_attributes(self, target_obj, attribute_names=None):
         """
-        target_obj: куда копируем
-        attribute_names: список имен (строк), например ['switch_side1', 'switch_side3']
+        A function for copying attributes from one object to another
+        target_obj - the object to which the attributes will be copied
+        attribute_names - a list of attribute names to copy. If None, all attributes will be copied
         """
         if attribute_names is None:
             attribute_names = list(self.atreibute_list_value().keys())
@@ -106,7 +117,8 @@ class BacupsShron:
 
 class TransJson:
     '''
-    Class for working with JSON file, which stores the settings of the program, and also for working with the file system in general'''
+    Class for working with JSON file, which stores the settings of the program, and also for working with the file system in general
+    '''
     def __init__(self):
         pass
 
@@ -190,7 +202,6 @@ class TransJson:
     
     # Function to create json file
     def push_config_file(self, const_shron_dump):
-
         '''
         Function to write the settings of the program to a JSON file, which is used to store the settings of the program
         const_shron_dump - the settings of the program, which is used to store the settings of the program
@@ -251,7 +262,7 @@ class TransLayout():
         #preparing the copied text
         for i in select_text:
             try:
-                re_print = str(re_print + self.dictionary[i])
+                re_print = str(re_print + self.shron.alphabet_language[i])
             except:
                 re_print = re_print + i
         clipboard.copy(re_print)  #add the finished text to the clipboard
