@@ -262,7 +262,7 @@ class TransLayout():
         #preparing the copied text
         for i in select_text:
             try:
-                re_print = str(re_print + self.shron.alphabet_language[i])
+                re_print = str(re_print + self.shron.simvol_alphabet_language[i])
             except:
                 re_print = re_print + i
         clipboard.copy(re_print)  #add the finished text to the clipboard
@@ -390,12 +390,12 @@ class TranslyGUI:
 
 def main():
     VALUE_LIST = {
-        "switch_shift_alt_config": SWITCH_SIFT_ALT,
         "hot_key_layout": HOT_KEY_LAYOUT,
         "hot_key_translate": HOT_KEY_TRANSLATION,
         "language_en": LANGUAGE_EN,
         "language_ru": LANGUAGE_RU,
-        "alphabet_language": ALPHABET_LANGUAGE
+        "simvol_alphabet_language": ALPHABET_LANGUAGE,
+        "switch_shift_alt_config": SWITCH_SIFT_ALT
     }
     shron = BacupsShron()
     tjson = TransJson()
