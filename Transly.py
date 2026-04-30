@@ -13,6 +13,7 @@ from PIL import Image
 
 # Standard Python modules
 from pathlib import Path
+import inspect
 import time
 import json
 import os
@@ -40,7 +41,7 @@ HOT_KEY_LAYOUT = ("ctrl + F9")
 HOT_KEY_TRANSLATION = ("ctrl + F8")
 LANGUAGE_EN = ("en")
 LANGUAGE_RU = ("ru")
-SWITCH_OFF = False #variable for setting up the layout switch
+SWITCH_SIFT_ALT = False #variable for setting up the layout switch
 
 # Function to press the keys
 def CTRL_C():
@@ -65,23 +66,62 @@ def SHIFT_ALT():
     ctypes.windll.user32.keybd_event(0x10, 0, 2, 0)  # Shift up
 
 # General storage switch value
-class SwitchState:
-    '''Class for storing the value of the layout switch, which is used in different parts of the program'''
+class BacupsShron:
+    '''A class for storing and working with system variables and values ​​from a backup.'''
     def __init__(self):
-        self.switch_side1 = None
+        pass
+
+    def atribute_arow(self, busup_dict):
+        '''
+        A function for setting attributes of the class
+        busup_dict - a dictionary with the names of the attributes as keys and their values as values
+        '''
+        for key, value in busup_dict.items():
+            setattr(self, key, value)
+    
+    def atribute_list(self):
+        '''
+        A function for getting a list of the names of the attributes of the class
+        '''
+        members = inspect.getmembers(self)
+        only_vars = [
+            m[0] for m in members
+            if not m[0].startswith('__') and not inspect.ismethod(m[1])
+        ]
+        return(only_vars)
+    
+    def atreibute_list_value(self):
+        '''
+        A function for getting a dictionary of the names of the attributes of the class as keys and their values as values
+        '''
+        list_value = {}
+        for i in self.atribute_list():
+            list_value[i] = getattr(self, i)
+        return list_value
+
+    def push_attributes(self, target_obj, attribute_names=None):
+        """
+        A function for copying attributes from one object to another
+        target_obj - the object to which the attributes will be copied
+        attribute_names - a list of attribute names to copy. If None, all attributes will be copied
+        """
+        if attribute_names is None:
+            attribute_names = list(self.atreibute_list_value().keys())
+
+        for attr in attribute_names:
+            if hasattr(self, attr):  # Проверяем, существует ли такой атрибут у нас
+                value = getattr(self, attr)
+                setattr(target_obj, attr, value)
+            else:
+                print(f"Предупреждение: Атрибут {attr} не найден в текущем объекте")
 
 class TransJson:
     '''
-    Class for working with JSON file, which stores the settings of the program, and also for working with the file system in general'''
-    def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF):
-        #for clarity, i'm thowing constant =D
-        self.ALPHABET_LANGUAGE = ALPHABET_LANGUAGE
-        self.HOT_KEY_LAYOUT = HOT_KEY_LAYOUT
-        self.HOT_KEY_TRANSLATION = HOT_KEY_TRANSLATION
-        self.LANGUAGE_EN = LANGUAGE_EN
-        self.LANGUAGE_RU = LANGUAGE_RU
-        self.SWITCH_OFF = SWITCH_OFF
-        
+    Class for working with JSON file, which stores the settings of the program, and also for working with the file system in general
+    '''
+    def __init__(self):
+        pass
+
     # Function to check if the file is compiled, which is used to determine the path to the file icon and config directory
     def we_compiled(self):
         '''Function to check if the file is compiled, which is used to determine the path to the file icon and config directory'''
@@ -94,11 +134,6 @@ class TransJson:
             # Если это обычный .py файл
             print(f"Запущено как обычный скрипт Python, по пути: {path_to_main_file}")
             return(False)   
-        # path_to_main_file = os.path.realpath(__file__)
-        # if "Temp" in path_to_main_file: #condition for checking if the file is compiled
-        #     return(True)
-        # else:
-        #     return(False)
 
     # Function to find the path to the file icon directory
     def file_icon_path(self, file, folder_path = ""):
@@ -138,6 +173,7 @@ class TransJson:
             path_to_json_config = user_home / user_folder_path / file
         else:
             path_to_json_config = path_to_nain_folder / desctop_folder_path / file
+        
         # Function to create a folder for storing the service file
         def create_a_folder(where):
             try:
@@ -148,48 +184,21 @@ class TransJson:
         create_a_folder(str(path_to_nain_folder))
         return(str(path_to_json_config))
 
-    # Function to assemble text for JSON deserialization
-    def mergiing(self, nomber, text):
-        '''
-        Function for assembling text for JSON deserialization, which are used in different parts of the program
-        nomber - the key for the text, which is used in different parts of the program
-        text - the value for the text, which is used in different parts of the program
-        '''
-        self.CONSTANT_LIST[nomber] = text
-    
-    # Function for filling a list of constants
-    def setting_dap(self):
-        '''Function for filling a list of constants, which are used in different parts of the program'''
-        self.mergiing("switch_off", self.SWITCH_OFF)                   #call the text assembly for JSON deserialization with key 1 and value switch_off
-        self.mergiing("hot_key_layout", self.HOT_KEY_LAYOUT)           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
-        self.mergiing("hot_key_translation", self.HOT_KEY_TRANSLATION) #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
-        self.mergiing("language_en", self.LANGUAGE_EN)                 #call the text assembly for JSON deserialization with key 4 and value language_en
-        self.mergiing("language_ru", self.LANGUAGE_RU)                 #call the text assembly for JSON deserialization with key 5 and value language_ru
-        self.mergiing("alphabet_language", self.ALPHABET_LANGUAGE)     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
-        return(self.CONSTANT_LIST)
-
     # Function for setting attributes of the class, which are used in different parts of the program
-    def setting_attributes(self, baf_state, icon_path, config_path):
+    def setting_attributes(self, shron, VALUE_LIST, icon_path, config_path):
         '''
         Function for setting attributes of the class, which are used in different parts of the program
-        baf_state - the value of the layout switch, which is used in different parts of the program
+        shron - the JSON worker instance, which is used to work with the JSON file, which stores the settings of the program
+        VALUE_LIST - the list of values to be set as attributes
         icon_path - the path to the file icon directory
         config_path - the path to the file config directory
         '''
         #worcking attributes
-        self.baf_state = baf_state
-        self.CONSTANT_LIST = {}
+        self.shron = shron
+        self.VALUE_LIST = VALUE_LIST
         self.icon_path = icon_path
         self.config_path = config_path
-        self.shron = self.json_worker()
-
-        #atributes state in file
-        self.baf_state.switch_side1 = self.shron["switch_off"]    #call the language_ru text
-        self.hot_key_n1 = self.shron["hot_key_layout"]           #call the hot-key-№1 text
-        self.hot_key_n2 = self.shron["hot_key_translation"]      #call the hot-key-№2 text
-        self.language_1 = self.shron["language_en"]              #call the language_en text
-        self.language_2 = self.shron["language_ru"]              #call the language_ru text
-        self.dictionary = self.shron["alphabet_language"]        #call the dictionary text
+        self.json_worker()
     
     # Function to create json file
     def push_config_file(self, const_shron_dump):
@@ -207,21 +216,18 @@ class TransJson:
             with open(self.config_path, "r") as write_file: #file opened only in the with open construct
                 interlayer = {}
                 interlayer = json.loads(write_file.read())
-                return(interlayer) 
+                # return(interlayer)
+                self.shron.atribute_arow(interlayer)
+                return()
         except FileNotFoundError:
-            const_shron = self.setting_dap()
-            self.push_config_file(const_shron)
-            return(const_shron)
+            self.push_config_file(self.VALUE_LIST)
+            self.shron.atribute_arow(self.VALUE_LIST)
+            return()
         
 class TransLayout():
-    def __init__(self, trans_json):
+    def __init__(self, shron):
         #forwarding attributes from TransJson, including hot class, language, and switch state attributes
-        self.hot_key_n1 = trans_json.hot_key_n1
-        self.hot_key_n2 = trans_json.hot_key_n2
-        self.dictionary = trans_json.dictionary
-        self.baf_state = trans_json.baf_state
-        self.language_1 = trans_json.language_1
-        self.language_2 = trans_json.language_2
+        self.shron = shron
 
     # Function for extracting text from the input hoop
     def selecting_text(self, copy=True):
@@ -234,7 +240,7 @@ class TransLayout():
                if counter == 5:
                    print("превышено количество попыток получения текста из буфера обмена")
                    return(clipboard.paste())
-            #    if self.baf_state.switch_side2 and copy == True:
+            #    if self.shron.switch_ctrl_a_config and copy == True:
             #        CTRL_A()
                if copy:
                    CTRL_C()
@@ -256,7 +262,7 @@ class TransLayout():
         #preparing the copied text
         for i in select_text:
             try:
-                re_print = str(re_print + self.dictionary[i])
+                re_print = str(re_print + self.shron.simvol_alphabet_language[i])
             except:
                 re_print = re_print + i
         clipboard.copy(re_print)  #add the finished text to the clipboard
@@ -265,7 +271,7 @@ class TransLayout():
         else:
             return(re_print)
 
-        if self.baf_state.switch_side1: #condition for switching the layout
+        if self.shron.switch_shift_alt_config: #condition for switching the layout
             SHIFT_ALT()
     
     # Function for working with Google translator
@@ -277,9 +283,9 @@ class TransLayout():
         '''
         translator = Translator()
         detected = translator.detect(select_text)
-        if detected.lang == self.language_1:
+        if detected.lang == self.shron.language_en:
             for_translation = "ru"
-        elif detected.lang == self.language_2:
+        elif detected.lang == self.shron.language_ru:
             for_translation = "en"
         else:
             for_translation = "en"
@@ -294,18 +300,17 @@ class TransLayout():
     def check_hotkey(self):
         '''Hot-key check, which is used to set up the hot-keys for changing the layout and translating the text that the user wants to change the layout of or translate'''
         try:
-            keyboard.add_hotkey(self.hot_key_n1, lambda: self.master_keyboard_worker(self.selecting_text()))
-            keyboard.add_hotkey(self.hot_key_n2, lambda: self.master_transly_worker(self.selecting_text()))
+            keyboard.add_hotkey(self.shron.hot_key_layout, lambda: self.master_keyboard_worker(self.selecting_text()))
+            keyboard.add_hotkey(self.shron.hot_key_translate, lambda: self.master_transly_worker(self.selecting_text()))
         except:
             return
     
 class TranslyGUI:
-    def __init__(self, icon_path, shron, push_config_file, baf_state, icon, menu, item):
+    def __init__(self, shron, icon_path, push_config_file, icon, menu, item):
 
         self.icon_path = icon_path
         self.shron = shron
         self.push_config_file = push_config_file
-        self.baf_state = baf_state
         self.icon = icon
         self.menu = menu
         self.item = item
@@ -349,7 +354,7 @@ class TranslyGUI:
             offvalue="off", command=lambda: self._toggle_switch())
         self.toggle_button.pack(side='top')
         
-        if self.baf_state.switch_side1:
+        if self.shron.switch_shift_alt_config:
             self.toggle_button.select()
    
     #Check window closing and tray icon initialization
@@ -358,9 +363,8 @@ class TranslyGUI:
     
     # Function true/false switch
     def _toggle_switch(self):
-        self.baf_state.switch_side1 = not(self.baf_state.switch_side1)
-        self.shron["switch_off"] = self.baf_state.switch_side1
-        self.push_config_file(self.shron)
+        self.shron.switch_shift_alt_config = not(self.shron.switch_shift_alt_config)
+        self.push_config_file(self.shron.atreibute_list_value())
     
     # Hide the window and show it on the system taskbar
     def _hide_window(self):
@@ -385,12 +389,20 @@ class TranslyGUI:
         self.win.mainloop() 
 
 def main():
-    swof = SwitchState()
-    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
-    tjson.setting_attributes(swof, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
-    tlay = TransLayout(tjson)
+    VALUE_LIST = {
+        "hot_key_layout": HOT_KEY_LAYOUT,
+        "hot_key_translate": HOT_KEY_TRANSLATION,
+        "language_en": LANGUAGE_EN,
+        "language_ru": LANGUAGE_RU,
+        "simvol_alphabet_language": ALPHABET_LANGUAGE,
+        "switch_shift_alt_config": SWITCH_SIFT_ALT
+    }
+    shron = BacupsShron()
+    tjson = TransJson()
+    tjson.setting_attributes(shron, VALUE_LIST, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
+    tlay = TransLayout(shron)
     tlay.check_hotkey() #hot-key check
-    app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, swof, icon, menu, item)
+    app = TranslyGUI(shron, tjson.icon_path, tjson.push_config_file, icon, menu, item)
     app.run()
 
 if __name__ == "__main__":

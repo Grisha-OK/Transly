@@ -2,10 +2,18 @@ import pytest
 import shutil
 import os
 from pathlib import Path
-from Transly import TransJson, SwitchState
+from Transly import TransJson, BacupsShron
 from constant import *
 
-fake_swof = SwitchState()
+fake_shron = BacupsShron()
+VALUE_LIST = {
+    "hot_key_layout": HOT_KEY_LAYOUT,
+    "hot_key_translate": HOT_KEY_TRANSLATION,
+    "language_en": LANGUAGE_EN,
+    "language_ru": LANGUAGE_RU,
+    "simvol_alphabet_language": ALPHABET_LANGUAGE,
+    "switch_shift_alt_config": SWITCH_SIFT_ALT
+}
 
 def source_img(file):
     # Путь к текущему файлу (test_work_data.py)
@@ -42,14 +50,13 @@ def test_master_json_icon(temp_folder_env):
     # Подготавливаем путь (добавляем слеш для вашей функции)
     folder_arg = Path("test", temp_folder_env).resolve()
     
-    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, 
-                      LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
+    tjson = TransJson()
     
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
     config_path = tjson.file_config_path("config_test.json", '' ,folder_arg)
 
-    tjson.setting_attributes(fake_swof, icon_path, config_path)
+    tjson.setting_attributes(fake_shron, VALUE_LIST, icon_path, config_path)
     
     # Проверка
     file_test_folder_ico = tjson.file_icon_path("favicon_test.ico", folder_arg)
@@ -65,14 +72,13 @@ def test_master_json_copy_icon(temp_folder_env):
     test_icon_path = Path(f"{folder_arg}\\favicon_test.ico")
     shutil.copy(source_img("favicon.ico"), test_icon_path)
 
-    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, 
-                  LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
+    tjson = TransJson()
     
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
     config_path = tjson.file_config_path("config_test.json", '' ,folder_arg)
 
-    tjson.setting_attributes(fake_swof, icon_path, config_path)
+    tjson.setting_attributes(fake_shron, VALUE_LIST, icon_path, config_path)
 
     # Проверка
     file_test_folder_ico = tjson.file_icon_path("favicon_test.ico", folder_arg)
@@ -84,14 +90,13 @@ def test_master_json_config(temp_folder_env):
     # Подготавливаем путь (добавляем слеш для вашей функции)
     folder_arg = Path("test", temp_folder_env).resolve()
 
-    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, 
-                      LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
+    tjson = TransJson()
     
     # Используем путь из фикстуры
     icon_path = tjson.file_icon_path("favicon_test.ico", folder_arg)
     config_path = tjson.file_config_path("config_test.json", '' ,folder_arg)
 
-    tjson.setting_attributes(fake_swof, icon_path, config_path)
+    tjson.setting_attributes(fake_shron, VALUE_LIST, icon_path, config_path)
     
     # Проверка
     file_test_folder_json = tjson.file_config_path("config_test.json", '' ,folder_arg)

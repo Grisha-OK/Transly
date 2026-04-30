@@ -13,4 +13,5 @@ HOT_KEY_LAYOUT = ("ctrl + F9")
 HOT_KEY_TRANSLATION = ("ctrl + F8")
 LANGUAGE_EN = ("en")
 LANGUAGE_RU = ("ru")
-SWITCH_OFF = False #variable for setting up the layout switch
+SWITCH_SIFT_ALT = False #variable for setting up the layout switch
+SWITCH_CTRL_A = False
