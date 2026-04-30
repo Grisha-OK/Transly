@@ -13,6 +13,7 @@ from PIL import Image
 
 # Standard Python modules
 from pathlib import Path
+import inspect
 import time
 import json
 import os
@@ -40,7 +41,7 @@ HOT_KEY_LAYOUT = ("ctrl + F9")
 HOT_KEY_TRANSLATION = ("ctrl + F8")
 LANGUAGE_EN = ("en")
 LANGUAGE_RU = ("ru")
-SWITCH_OFF = False #variable for setting up the layout switch
+SWITCH_SIFT_ALT = False #variable for setting up the layout switch
 
 # Function to press the keys
 def CTRL_C():
@@ -70,17 +71,53 @@ class BacupsShron:
     def __init__(self):
         pass
 
+    def atribute_arow(self, busup_dict):
+        for key, value in busup_dict.items():
+            setattr(self, key, value)
+    
+    def atribute_list(self):
+        members = inspect.getmembers(self)
+        only_vars = [
+            m[0] for m in members
+            if not m[0].startswith('__') and not inspect.ismethod(m[1])
+        ]
+        return(only_vars)
+    
+    def atreibute_list_value(self):
+        list_value = {}
+        for i in self.atribute_list():
+            list_value[i] = getattr(self, i)
+        return list_value
+
+    def push_attributes(self, target_obj, attribute_names=None):
+        """
+        target_obj: куда копируем
+        attribute_names: список имен (строк), например ['switch_side1', 'switch_side3']
+        """
+        if attribute_names is None:
+            attribute_names = list(self.atreibute_list_value().keys())
+
+        for attr in attribute_names:
+            if hasattr(self, attr):  # Проверяем, существует ли такой атрибут у нас
+                value = getattr(self, attr)
+                setattr(target_obj, attr, value)
+            else:
+                print(f"Предупреждение: Атрибут {attr} не найден в текущем объекте")
+
 class TransJson:
     '''
     Class for working with JSON file, which stores the settings of the program, and also for working with the file system in general'''
-    def __init__(self, ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF):
+    def __init__(self):
+        pass
+        #self.shron = shron
+
         #for clarity, i'm thowing constant =D
-        self.ALPHABET_LANGUAGE = ALPHABET_LANGUAGE
-        self.HOT_KEY_LAYOUT = HOT_KEY_LAYOUT
-        self.HOT_KEY_TRANSLATION = HOT_KEY_TRANSLATION
-        self.LANGUAGE_EN = LANGUAGE_EN
-        self.LANGUAGE_RU = LANGUAGE_RU
-        self.SWITCH_OFF = SWITCH_OFF
+        # self.ALPHABET_LANGUAGE = ALPHABET_LANGUAGE
+        # self.HOT_KEY_LAYOUT = HOT_KEY_LAYOUT
+        # self.HOT_KEY_TRANSLATION = HOT_KEY_TRANSLATION
+        # self.LANGUAGE_EN = LANGUAGE_EN
+        # self.LANGUAGE_RU = LANGUAGE_RU
+        # self.SWITCH_OFF = SWITCH_OFF
 
         
     # Function to check if the file is compiled, which is used to determine the path to the file icon and config directory
@@ -150,38 +187,38 @@ class TransJson:
         return(str(path_to_json_config))
     
     def shron_alfabet_to_object(self, alphabet_map):
-        self.shron.switch_shift_alt_config = alphabet_map["switch_shift_alt_config"]
-        self.shron.hot_key_layout = alphabet_map["hot_key_layout"]
-        self.shron.hot_key_translation = alphabet_map["hot_key_translation"]
-        self.shron.language_en = alphabet_map["language_en"]
-        self.shron.language_ru = alphabet_map["language_ru"]
-        self.shron.alphabet_language = alphabet_map["alphabet_language"]
+        print(alphabet_map)
+        # self.shron.switch_shift_alt_config = alphabet_map["switch_shift_alt_config"]
+        # self.shron.hot_key_layout = alphabet_map["hot_key_layout"]
+        # self.shron.hot_key_translation = alphabet_map["hot_key_translation"]
+        # self.shron.language_en = alphabet_map["language_en"]
+        # self.shron.language_ru = alphabet_map["language_ru"]
+        # self.shron.alphabet_language = alphabet_map["alphabet_language"]
 
     # Function for filling a list of constants
-    def setting_constant_shron(self):
-        '''Function for filling a list of constants, which are used in different parts of the program'''
-        CONSTANT_LIST = {}
-        CONSTANT_LIST["switch_shift_alt_config"] = self.SWITCH_OFF      #call the text assembly for JSON deserialization with key 1 and value switch_off
-        CONSTANT_LIST["hot_key_layout"] = self.HOT_KEY_LAYOUT           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
-        CONSTANT_LIST["hot_key_translation"] = self.HOT_KEY_TRANSLATION #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
-        CONSTANT_LIST["language_en"] = self.LANGUAGE_EN                 #call the text assembly for JSON deserialization with key 4 and value language_en
-        CONSTANT_LIST["language_ru"] = self.LANGUAGE_RU                 #call the text assembly for JSON deserialization with key 5 and value language_ru
-        CONSTANT_LIST["alphabet_language"] = self.ALPHABET_LANGUAGE     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
-        return(CONSTANT_LIST)
+    # def setting_constant_shron(self):
+    #     '''Function for filling a list of constants, which are used in different parts of the program'''
+    #     CONSTANT_LIST = {}
+    #     CONSTANT_LIST["switch_shift_alt_config"] = self.SWITCH_OFF      #call the text assembly for JSON deserialization with key 1 and value switch_off
+    #     CONSTANT_LIST["hot_key_layout"] = self.HOT_KEY_LAYOUT           #call the text assembly for JSON deserialization with key 2 and value hot_key_№1
+    #     CONSTANT_LIST["hot_key_translation"] = self.HOT_KEY_TRANSLATION #call the text assembly for JSON deserialization with key 3 and value hot_key_№2
+    #     CONSTANT_LIST["language_en"] = self.LANGUAGE_EN                 #call the text assembly for JSON deserialization with key 4 and value language_en
+    #     CONSTANT_LIST["language_ru"] = self.LANGUAGE_RU                 #call the text assembly for JSON deserialization with key 5 and value language_ru
+    #     CONSTANT_LIST["alphabet_language"] = self.ALPHABET_LANGUAGE     #call the text assembly for JSON deserialization with key 6 and value alphabet_language
+    #     return(CONSTANT_LIST)
 
     # Function for setting attributes of the class, which are used in different parts of the program
-    def setting_attributes(self, shron, icon_path, config_path):
+    def setting_attributes(self, shron, VALUE_LIST, icon_path, config_path):
         '''
         Function for setting attributes of the class, which are used in different parts of the program
         shron - the JSON worker instance, which is used to work with the JSON file, which stores the settings of the program
-        baf_state - the value of the layout switch, which is used in different parts of the program
+        VALUE_LIST - the list of values to be set as attributes
         icon_path - the path to the file icon directory
         config_path - the path to the file config directory
         '''
         #worcking attributes
-        # self.baf_state = baf_state
-        # self.CONSTANT_LIST = {}
         self.shron = shron
+        self.VALUE_LIST = VALUE_LIST
         self.icon_path = icon_path
         self.config_path = config_path
         self.json_worker()
@@ -212,12 +249,11 @@ class TransJson:
                 interlayer = {}
                 interlayer = json.loads(write_file.read())
                 # return(interlayer)
-                self.shron_alfabet_to_object(interlayer)
+                self.shron.atribute_arow(interlayer)
                 return()
         except FileNotFoundError:
-            CONSTANT_LIST = self.setting_constant_shron()
-            self.push_config_file(CONSTANT_LIST)
-            self.shron_alfabet_to_object(CONSTANT_LIST)
+            self.push_config_file(self.VALUE_LIST)
+            self.shron.atribute_arow(self.VALUE_LIST)
             return()
         
 class TransLayout():
@@ -392,9 +428,18 @@ class TranslyGUI:
         self.win.mainloop() 
 
 def main():
+    VALUE_LIST = {
+        "switch_shift_alt_config": SWITCH_SIFT_ALT,
+        "hot_key_layout": HOT_KEY_LAYOUT,
+        "hot_key_translate": HOT_KEY_TRANSLATION,
+        "language_en": LANGUAGE_EN,
+        "language_ru": LANGUAGE_RU,
+        "alphabet_language": ALPHABET_LANGUAGE
+    }
     shron = BacupsShron()
-    tjson = TransJson(ALPHABET_LANGUAGE, HOT_KEY_LAYOUT, HOT_KEY_TRANSLATION, LANGUAGE_EN, LANGUAGE_RU, SWITCH_OFF)
-    tjson.setting_attributes(shron, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
+    #shron.atribute_arow(VALUE_LIST)
+    tjson = TransJson()
+    tjson.setting_attributes(shron, VALUE_LIST, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
     tlay = TransLayout(shron)
     tlay.check_hotkey() #hot-key check
     app = TranslyGUI(tjson.icon_path, tjson.shron, tjson.push_config_file, shron, icon, menu, item)
