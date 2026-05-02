@@ -42,7 +42,8 @@ HOT_KEY_LAYOUT = ("ctrl + F9")
 HOT_KEY_TRANSLATION = ("ctrl + F8")
 LANGUAGE_EN = ("en")
 LANGUAGE_RU = ("ru")
-SWITCH_SIFT_ALT = False #variable for setting up the layout switch
+SWITCH_SHIFT_ALT = False #variable for setting up the layout switch
+SWITCH_CTRL_A = False #variable for setting up the text selection switch
 
 # Function to press the keys
 def CTRL_C():
@@ -308,7 +309,7 @@ class TransLayout():
 
 class Switchpool:
     '''
-    Class for
+    Class for creating a switch widget in the GUI, which is used to toggle the layout switching functionality.
     '''
     def __init__(self, phather_frame, shron, sw_row=0, sw_column=0):
         self.shron = shron
@@ -337,10 +338,16 @@ class Switchpool:
         self.tooltip_fraim.configure(message=new_tooltip)
 
 class TranslyGUI(customtkinter.CTk):
-    '''
-    Class for 
-    '''
     def __init__(self, shron, icon_path, push_config_file, icon, menu, item):
+        '''
+        Class for creating the main GUI window for the Transly application.
+        shron - the object for saving and storaging sistem variable
+        icon_path - the path to the file icon directory, which is used to store the icon of the program in the system tray
+        push_config_file - the function for writing the settings of the program to a JSON file, which is used to store the settings of the program
+        icon - the class for creating an icon for the program in the system tray, which is used to create an icon for the program in the system tray
+        menu - the class for creating a menu for the program in the system tray, which is used to create a menu for the program in the system tray
+        item - the class for creating a menu item for the program in the system tray, which is used to create a menu item for the program in the system tray
+        '''
         customtkinter.set_widget_scaling(0.85)
         super().__init__()
 
@@ -355,12 +362,120 @@ class TranslyGUI(customtkinter.CTk):
         self.title("Transly")
         self.geometry("400x330")
 
-        self.frame = customtkinter.CTkFrame(self, height=100, fg_color="red")
-        self.frame.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        # self.frame = customtkinter.CTkFrame(self, height=100, fg_color="red")
+        # self.frame.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
-        self.switch_alt_shift = Switchpool(self, self.shron, sw_row=2, sw_column=2)
+        # self.switch_alt_shift = Switchpool(self, self.shron, sw_row=2, sw_column=2)
 
+        # configure main window grid so tabview stays at top and extra space is below
+        self.grid_rowconfigure(0, weight=1)  # табвью
+        self.grid_rowconfigure(1, weight=0)  # футер
+        self.grid_rowconfigure(2, weight=0)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=0)
 
+        # create tabview
+        self.tabview = customtkinter.CTkTabview(self, height=0)
+        self.tabview.grid(row=0, column=0, columnspan=2, padx=10, pady=(0, 10), sticky="nsew")
+        self.tabview.grid_rowconfigure(3, weight=1)  # content row inside Home
+        self.tabview.grid_columnconfigure(0, weight=1)
+        self.tabview.add("Home")
+        self.tabview.add("Settings")
+        self.tabview.add("Stayle")
+        self.tabview.tab("Home").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
+        self.tabview.tab("Home").grid_rowconfigure(2, weight=1)
+        self.tabview.tab("Settings").grid_columnconfigure(0, weight=1)
+        self.tabview.tab("Stayle").grid_columnconfigure(0, weight=1)
+        self.tabview.tab("Stayle").grid_rowconfigure(0, weight=1)
+
+        # Создание фрейма с текстом на первой вкладке
+        self.lable_frame = customtkinter.CTkFrame(self.tabview.tab("Home"), height=100, fg_color=("gray75", "gray25"), corner_radius=5)
+        self.lable_frame.grid(row=0, column=0, padx=20, pady=(10, 0), sticky="nsew")
+        self.lable_frame.grid_columnconfigure(0, weight=1)
+        self.lable_frame.grid_columnconfigure(1, weight=1)
+        self.lable_text = customtkinter.CTkLabel(self.lable_frame, text="This is program for change layout and language\nfor charging layout and language press hotkeys")
+        self.lable_text.grid(row=0, column=1, padx=20, pady=(10, 10), sticky="w")
+
+        # Создание фрейма с переключателями на первой вкладке
+        self.switch_frame = customtkinter.CTkFrame(self.tabview.tab("Home"), height=50, fg_color=("gray75", "gray25"), corner_radius=5)
+        self.switch_frame.grid(row=2, column=0, padx=20, pady=(10, 10), sticky="nsew")
+        self.switch_frame.grid_columnconfigure(0, weight=1)
+        # self.switch_frame.grid_columnconfigure(1, weight=1)
+        # self.switch_frame.grid_columnconfigure(2, weight=0)
+        
+        self.lable_text_select = customtkinter.CTkLabel(self.switch_frame, text="Press ctrl + a, for auto selection text")
+        self.lable_text_select.grid(row=0, column=1, padx=10, pady=(2, 1), sticky="w")
+        # Переключатель первый
+        self.switch_text_selection = Switchpool(self.switch_frame, shron, sw_row=1, sw_column=1)
+
+        self.lable_trans_layout = customtkinter.CTkLabel(self.switch_frame, text="Press ctrl + shift, for translate layout")
+        self.lable_trans_layout.grid(row=2, column=1, padx=10, pady=(2, 1), sticky="w")  
+        # Переключатель второй
+        self.switch_trans_layout = Switchpool(self.switch_frame, shron, sw_row=3, sw_column=1)
+
+        # Красный фрейм для проверки правильности расположения переключателей
+        self.jangle_patch = customtkinter.CTkFrame(self.switch_frame, height=0, fg_color=("red"))
+        self.jangle_patch.grid(row=4, column=1, padx=435, pady=0, sticky="w")
+
+         # Создание фрейма с опциями на третьей вкладке
+        self.win_frame2 = customtkinter.CTkFrame(self.tabview.tab("Stayle"), fg_color=("gray75", "gray25"), corner_radius=5)
+        self.win_frame2.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="nsew")
+
+        # Создание фрейма с опциями на третьей вкладке
+        self.option_menu_1 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
+                                                        values=["System", "Light", "Dark"],
+                                                        command=self.change_appearance_mode_event)
+        self.option_menu_1.grid(row=0, column=0, padx=20, pady=(35, 10))
+
+        self.option_menu_2 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
+                                                        values=["english", "Russian"],
+                                                        command=self.change_appearance_mode_event)
+        self.option_menu_2.grid(row=1, column=0, padx=20, pady=(10, 10))
+
+        self.option_menu_3 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
+                                                        values=["normal", "aero", "win7"],
+                                                        command=self.change_appearance_mode_event)
+        self.option_menu_3.grid(row=2, column=0, padx=20, pady=(10, 10))
+        
+        # Футер с кнопкой для выхода из программы
+        self.footer_frame = customtkinter.CTkFrame(self, fg_color=None, corner_radius=5)
+        self.footer_frame.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=(0, 10))
+        self.footer_frame.grid_columnconfigure(0, weight=1)
+
+        self.quit_button = customtkinter.CTkButton(self.footer_frame, text="Quit", fg_color=None, hover_color="#ff5c5c", command=self.quit)
+        self.quit_button.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+
+    # Function for changing the appearance of the program
+    def change_appearance_mode_event(self, new_appearance_mode):
+        customtkinter.set_appearance_mode(new_appearance_mode)
+
+    # Check window closing and tray icon initialization
+    def setup_tray(self):
+        self.protocol('WM_DELETE_WINDOW', self.hide_window)
+        self.push_config_file(self.shron.atreibute_list_value())
+    
+    # Hide the window and show it on the system taskbar
+    def hide_window(self):
+       self.withdraw()
+       image = Image.open(self.icon_path)
+       menu = (item('Quit', lambda : self.quit_window()),
+               item('Show', lambda : self.show_window()))
+       self.icon = icon("name", image, "Trans Translation", menu)
+       self.icon.run()
+    
+    # Define a function to exit the window / and by compatibility for exiting the entire program
+    def quit_window(self):
+           self.icon.stop()
+           os.abort()
+    
+    # A function for re-displaying the window
+    def show_window(self):
+        self.icon.stop()
+        self.deiconify() #I'll probably leave it here <win.after(0,win.deiconify())>
+
+    def run(self):
+        self.mainloop() 
 
 def main():
     VALUE_LIST = {
@@ -369,7 +484,8 @@ def main():
         "language_en": LANGUAGE_EN,
         "language_ru": LANGUAGE_RU,
         "simvol_alphabet_language": ALPHABET_LANGUAGE,
-        "switch_shift_alt_config": SWITCH_SIFT_ALT
+        "switch_shift_alt_config": SWITCH_SHIFT_ALT,
+        "switch_ctrl_a_config": SWITCH_CTRL_A
     }
     shron = BacupsShron()
     tjson = TransJson()
