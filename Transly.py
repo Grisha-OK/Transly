@@ -17,7 +17,6 @@ import inspect
 import time
 import json
 import os
-#import getpass
 import ctypes
 import sys
 
@@ -115,7 +114,8 @@ class BacupsShron:
                 value = getattr(self, attr)
                 setattr(target_obj, attr, value)
             else:
-                print(f"Предупреждение: Атрибут {attr} не найден в текущем объекте")
+                raise EOFError(f"Allarm: Attribute {attr} not found in the current object")
+                # print(f"Предупреждение: Атрибут {attr} не найден в текущем объекте")
 
 class TransJson:
     '''
@@ -130,11 +130,11 @@ class TransJson:
         path_to_main_file = Path(__file__).resolve()
         if getattr(sys, 'frozen', False):
             # Если скрипт скомпилирован
-            print(f"Запущено из скомпилированного файла (PyInstaller), по пути: {path_to_main_file}")
+            # print(f"Запущено из скомпилированного файла (PyInstaller), по пути: {path_to_main_file}")
             return(True)
         else:
             # Если это обычный .py файл
-            print(f"Запущено как обычный скрипт Python, по пути: {path_to_main_file}")
+            # print(f"Запущено как обычный скрипт Python, по пути: {path_to_main_file}")
             return(False)   
 
     # Function to find the path to the file icon directory
@@ -153,7 +153,7 @@ class TransJson:
         # Function to create an icon if it does not exist, which is used to create an icon for the program in the system tray if it does not exist   
         def ensure_icon_exists(path_to_target_file, color=(70, 70, 70), size=(256, 256)):
             if not os.path.exists(path_to_target_file):
-                print(f"Иконка не найдена. Создаю иконку по пути: {path_to_target_file}")
+                # print(f"Иконка не найдена. Создаю иконку по пути: {path_to_target_file}")
                 img = Image.new("RGB", size, color=color)
                 os.makedirs(os.path.dirname(path_to_target_file) if os.path.dirname(path_to_target_file) else ".", exist_ok=True)
                 img.save(path_to_target_file, format="ICO")
@@ -240,10 +240,10 @@ class TransLayout():
         def clip_get(counter=0):
            try:
                if counter == 5:
-                   print("превышено количество попыток получения текста из буфера обмена")
+                   # print("превышено количество попыток получения текста из буфера обмена")
                    return(clipboard.paste())
-            #    if self.shron.switch_ctrl_a_config and copy == True:
-            #        CTRL_A()
+               if self.shron.switch_ctrl_a_config and copy == True:
+                   CTRL_A()
                if copy:
                    CTRL_C()
                return(Tk().clipboard_get())
@@ -308,27 +308,38 @@ class TransLayout():
             return
 
 class Switchpool:
-    '''
-    Class for creating a switch widget in the GUI, which is used to toggle the layout switching functionality.
-    '''
-    def __init__(self, phather_frame, shron, sw_row=0, sw_column=0):
+    def __init__(self, phather_frame, shron, switch_attribut_setattr, sw_row=0, sw_column=0):
+        '''
+        Class for creating a switch and working with it, which is used to change the state of the switch and save it in the general storage class
+        phather_frame - the frame in which the switch will be placed, which is used to create a switch and place it in the GUI
+        shron - the general storage class, which is used to save the state of the switch and other settings of the program
+        switch_attribut_setattr - the name of the attribute in the general storage class, which is used to save the state of the switch and other settings of the program
+        sw_row - the row in which the switch will be placed, which is used to create a switch and place it in the GUI
+        sw_column - the column in which the switch will be placed, which is used to create a switch and place it in the GUI
+        '''
+        if str(getattr(shron, switch_attribut_setattr)) == "True":
+            text_on_off = "Вкл."
+        else:
+            text_on_off = "Откл."
         self.shron = shron
-        self.switch_var = customtkinter.BooleanVar(value=str(shron.switch_shift_alt_config))  # Инициализируем переменную для хранения состояния переключателя
-        self.switch_fraim = customtkinter.CTkSwitch(phather_frame, text=str(shron.switch_shift_alt_config), variable=self.switch_var,
+        self.switch_var = customtkinter.BooleanVar(value=str(getattr(shron, switch_attribut_setattr)))  # Инициализируем переменную для хранения состояния переключателя
+        self.switch_fraim = customtkinter.CTkSwitch(phather_frame, text=text_on_off, variable=self.switch_var,
                                                               command=lambda: self.switch_event(sw_var=self.switch_var,
-                                                                                                 switch_pointer=self.switch_fraim))
+                                                                                                 switch_pointer=self.switch_fraim,
+                                                                                                 switch_attribut_setattr=switch_attribut_setattr))
         self.switch_fraim.grid(row=sw_row, column=sw_column, padx=10, pady=(0, 10), sticky="w")
         self.tooltip_fraim = CTkToolTip(self.switch_fraim, border_width=1, message=(f"Нажмите, чтобы {'включить' if self.switch_var.get() == False else 'отключить'}"))
-        # if self.baf_state.switch_side:
-        #    self.switch_fraim.select()
 
-    # Функция для изменения текста переключателя и его тултипа в зависимости от текущего состояния
-    def switch_event(self, sw_var, switch_pointer):
-        # Изменение состояния переключателя и сохранение его в конфиге
-        self.shron.switch_shift_alt_config = sw_var.get()
-        print(self.shron.switch_shift_alt_config)
-        # self.push_config_file(self.shron.atreibute_list_value())
-
+    # Function for changing the text of a switch and its tooltip depending on the current state of the switch, as well as for changing the value of the switch in the general storage class
+    def switch_event(self, sw_var, switch_pointer, switch_attribut_setattr):
+        '''
+        Function for changing the text of a switch and its tooltip depending on the current state of the switch, as well as for changing the value of the switch in the general storage class
+        sw_var - the variable that stores the state of the switch, which is used to change the text of the switch and its tooltip depending on the current state of the switch
+        switch_pointer - the switch itself, which is used to change the text of the switch and its tooltip depending on the current state of the switch
+        switch_attribut_setattr - the name of the attribute in the general storage class, which is used to save the state of the switch and other settings of the program, 
+        which is used to change the value of the switch in the general storage class
+        '''
+        setattr(self.shron, switch_attribut_setattr, sw_var.get())
         if sw_var.get() == True:
             switch_pointer.configure(text="Вкл.")
             new_tooltip = "Нажмите, чтобы отключить"
@@ -362,11 +373,6 @@ class TranslyGUI(customtkinter.CTk):
         self.title("Transly")
         self.geometry("400x330")
 
-        # self.frame = customtkinter.CTkFrame(self, height=100, fg_color="red")
-        # self.frame.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
-
-        # self.switch_alt_shift = Switchpool(self, self.shron, sw_row=2, sw_column=2)
-
         # configure main window grid so tabview stays at top and extra space is below
         self.grid_rowconfigure(0, weight=1)  # табвью
         self.grid_rowconfigure(1, weight=0)  # футер
@@ -389,7 +395,7 @@ class TranslyGUI(customtkinter.CTk):
         self.tabview.tab("Stayle").grid_columnconfigure(0, weight=1)
         self.tabview.tab("Stayle").grid_rowconfigure(0, weight=1)
 
-        # Создание фрейма с текстом на первой вкладке
+        # Create a frame with text on the first tab
         self.lable_frame = customtkinter.CTkFrame(self.tabview.tab("Home"), height=100, fg_color=("gray75", "gray25"), corner_radius=5)
         self.lable_frame.grid(row=0, column=0, padx=20, pady=(10, 0), sticky="nsew")
         self.lable_frame.grid_columnconfigure(0, weight=1)
@@ -397,54 +403,55 @@ class TranslyGUI(customtkinter.CTk):
         self.lable_text = customtkinter.CTkLabel(self.lable_frame, text="This is program for change layout and language\nfor charging layout and language press hotkeys")
         self.lable_text.grid(row=0, column=1, padx=20, pady=(10, 10), sticky="w")
 
-        # Создание фрейма с переключателями на первой вкладке
+        # Create a frame with switches on the first tab
         self.switch_frame = customtkinter.CTkFrame(self.tabview.tab("Home"), height=50, fg_color=("gray75", "gray25"), corner_radius=5)
         self.switch_frame.grid(row=2, column=0, padx=20, pady=(10, 10), sticky="nsew")
         self.switch_frame.grid_columnconfigure(0, weight=1)
-        # self.switch_frame.grid_columnconfigure(1, weight=1)
-        # self.switch_frame.grid_columnconfigure(2, weight=0)
         
+        # Text and switch for text selection
         self.lable_text_select = customtkinter.CTkLabel(self.switch_frame, text="Press ctrl + a, for auto selection text")
         self.lable_text_select.grid(row=0, column=1, padx=10, pady=(2, 1), sticky="w")
-        # Переключатель первый
-        self.switch_text_selection = Switchpool(self.switch_frame, shron, sw_row=1, sw_column=1)
-
+        # Switch one
+        self.switch_text_selection = Switchpool(self.switch_frame, self.shron, switch_attribut_setattr="switch_ctrl_a_config", sw_row=1, sw_column=1)
+        
+        # Text and switch for layout switching
         self.lable_trans_layout = customtkinter.CTkLabel(self.switch_frame, text="Press ctrl + shift, for translate layout")
         self.lable_trans_layout.grid(row=2, column=1, padx=10, pady=(2, 1), sticky="w")  
-        # Переключатель второй
-        self.switch_trans_layout = Switchpool(self.switch_frame, shron, sw_row=3, sw_column=1)
+        # Switch two
+        self.switch_trans_layout = Switchpool(self.switch_frame, self.shron, switch_attribut_setattr="switch_shift_alt_config", sw_row=3, sw_column=1)
 
-        # Красный фрейм для проверки правильности расположения переключателей
+        # Red frame for checking the correct placement of switches and text, which will be removed in the future
         self.jangle_patch = customtkinter.CTkFrame(self.switch_frame, height=0, fg_color=("red"))
         self.jangle_patch.grid(row=4, column=1, padx=435, pady=0, sticky="w")
 
-         # Создание фрейма с опциями на третьей вкладке
+        # Create a frame with options on the third tab
         self.win_frame2 = customtkinter.CTkFrame(self.tabview.tab("Stayle"), fg_color=("gray75", "gray25"), corner_radius=5)
         self.win_frame2.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="nsew")
 
-        # Создание фрейма с опциями на третьей вкладке
+        # Create a frame with options on the third tab
         self.option_menu_1 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
                                                         values=["System", "Light", "Dark"],
                                                         command=self.change_appearance_mode_event)
         self.option_menu_1.grid(row=0, column=0, padx=20, pady=(35, 10))
-
         self.option_menu_2 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
                                                         values=["english", "Russian"],
                                                         command=self.change_appearance_mode_event)
         self.option_menu_2.grid(row=1, column=0, padx=20, pady=(10, 10))
-
         self.option_menu_3 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
                                                         values=["normal", "aero", "win7"],
                                                         command=self.change_appearance_mode_event)
         self.option_menu_3.grid(row=2, column=0, padx=20, pady=(10, 10))
         
-        # Футер с кнопкой для выхода из программы
+        # Footer with a button to exit the program
         self.footer_frame = customtkinter.CTkFrame(self, fg_color=None, corner_radius=5)
         self.footer_frame.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=(0, 10))
         self.footer_frame.grid_columnconfigure(0, weight=1)
-
-        self.quit_button = customtkinter.CTkButton(self.footer_frame, text="Quit", fg_color=None, hover_color="#ff5c5c", command=self.quit)
+        
+        # Button to exit the program for footer frame
+        self.quit_button = customtkinter.CTkButton(self.footer_frame, text="Quit", fg_color=None, hover_color="#ff5c5c", command=self.quit_and_push)
         self.quit_button.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+
+        self.setup_tray()
 
     # Function for changing the appearance of the program
     def change_appearance_mode_event(self, new_appearance_mode):
@@ -468,6 +475,10 @@ class TranslyGUI(customtkinter.CTk):
     def quit_window(self):
            self.icon.stop()
            os.abort()
+
+    def quit_and_push(self):
+        super().quit()
+        self.push_config_file(self.shron.atreibute_list_value())
     
     # A function for re-displaying the window
     def show_window(self):
