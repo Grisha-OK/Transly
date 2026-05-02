@@ -24,6 +24,7 @@ import sys
 # GUI modules
 from tkinter import Tk
 import customtkinter
+from CTkToolTip import CTkToolTip
 
 # So-called alphabet
 ALPHABET_LANGUAGE = {
@@ -304,89 +305,62 @@ class TransLayout():
             keyboard.add_hotkey(self.shron.hot_key_translate, lambda: self.master_transly_worker(self.selecting_text()))
         except:
             return
-    
-class TranslyGUI:
-    def __init__(self, shron, icon_path, push_config_file, icon, menu, item):
 
-        self.icon_path = icon_path
+class Switchpool:
+    '''
+    Class for
+    '''
+    def __init__(self, phather_frame, shron, sw_row=0, sw_column=0):
         self.shron = shron
+        self.switch_var = customtkinter.BooleanVar(value=str(shron.switch_shift_alt_config))  # Инициализируем переменную для хранения состояния переключателя
+        self.switch_fraim = customtkinter.CTkSwitch(phather_frame, text=str(shron.switch_shift_alt_config), variable=self.switch_var,
+                                                              command=lambda: self.switch_event(sw_var=self.switch_var,
+                                                                                                 switch_pointer=self.switch_fraim))
+        self.switch_fraim.grid(row=sw_row, column=sw_column, padx=10, pady=(0, 10), sticky="w")
+        self.tooltip_fraim = CTkToolTip(self.switch_fraim, border_width=1, message=(f"Нажмите, чтобы {'включить' if self.switch_var.get() == False else 'отключить'}"))
+        # if self.baf_state.switch_side:
+        #    self.switch_fraim.select()
+
+    # Функция для изменения текста переключателя и его тултипа в зависимости от текущего состояния
+    def switch_event(self, sw_var, switch_pointer):
+        # Изменение состояния переключателя и сохранение его в конфиге
+        self.shron.switch_shift_alt_config = sw_var.get()
+        print(self.shron.switch_shift_alt_config)
+        # self.push_config_file(self.shron.atreibute_list_value())
+
+        if sw_var.get() == True:
+            switch_pointer.configure(text="Вкл.")
+            new_tooltip = "Нажмите, чтобы отключить"
+        else:
+            switch_pointer.configure(text="Откл.")
+            new_tooltip = "Нажмите, чтобы включить"
+        self.tooltip_fraim.configure(message=new_tooltip)
+
+class TranslyGUI(customtkinter.CTk):
+    '''
+    Class for 
+    '''
+    def __init__(self, shron, icon_path, push_config_file, icon, menu, item):
+        customtkinter.set_widget_scaling(0.85)
+        super().__init__()
+
+        self.shron = shron
+        self.icon_path = icon_path
         self.push_config_file = push_config_file
         self.icon = icon
         self.menu = menu
         self.item = item
 
-        # Create an instance of the tkinter frame or window
-        self.win = customtkinter.CTk()
-        self.win.title("Transly")
-        self.win.iconbitmap(self.icon_path)
-        self.win.geometry("300x85")
-        customtkinter.set_widget_scaling(0.85)
+        self.iconbitmap(icon_path)
+        self.title("Transly")
+        self.geometry("400x330")
 
-        self._create_widgets()
-        self._setup_tray()
+        self.frame = customtkinter.CTkFrame(self, height=100, fg_color="red")
+        self.frame.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
-    def _create_widgets(self):
-        # Add a separating border
-        self.frame = customtkinter.CTkFrame(self.win)
-        self.frame.pack(fill='both', side='left', expand=True)
+        self.switch_alt_shift = Switchpool(self, self.shron, sw_row=2, sw_column=2)
 
-        # Add indentation
-        customtkinter.CTkLabel(self.frame, text="Changing the layout:", font=(0, 17)
-                               ).pack(side='top', pady=10)
-        customtkinter.CTkLabel(self.win, text="   ", fg_color="transparent"
-                               ).pack(side='top', pady=0)
-        
-        # Add a button to exit the program
-        customtkinter.CTkButton(self.win, text="Quit", font=(0, 17), command=lambda: sys.exit(),
-                                fg_color="gray10", corner_radius=16).pack(
-                                    side='top',
-                                    padx=(10,10),
-                                    pady=(0,20),
-                                    ipadx=5,
-                                    ipady=5)
-        
-        # Specifically the toggle itself:
-        self.is_on = customtkinter.BooleanVar(value=False)
-        self.toggle_button = customtkinter.CTkSwitch(
-            self.frame,
-            text="", width=10,
-            variable=self.is_on, onvalue="on",
-            offvalue="off", command=lambda: self._toggle_switch())
-        self.toggle_button.pack(side='top')
-        
-        if self.shron.switch_shift_alt_config:
-            self.toggle_button.select()
-   
-    #Check window closing and tray icon initialization
-    def _setup_tray(self):
-        self.win.protocol('WM_DELETE_WINDOW', self._hide_window)
-    
-    # Function true/false switch
-    def _toggle_switch(self):
-        self.shron.switch_shift_alt_config = not(self.shron.switch_shift_alt_config)
-        self.push_config_file(self.shron.atreibute_list_value())
-    
-    # Hide the window and show it on the system taskbar
-    def _hide_window(self):
-       self.win.withdraw()
-       image = Image.open(self.icon_path)
-       menu = (item('Quit', lambda : self.quit_window()),
-               item('Show', lambda : self.show_window()))
-       self.icon = icon("name", image, "Trans Translation", menu)
-       self.icon.run()
-    
-    # Define a function to exit the window / and by compatibility for exiting the entire program
-    def quit_window(self):
-           self.icon.stop()
-           os.abort()
-    
-    # A function for re-displaying the window
-    def show_window(self):
-        self.icon.stop()
-        self.win.deiconify() #I'll probably leave it here <win.after(0,win.deiconify())>
 
-    def run(self):
-        self.win.mainloop() 
 
 def main():
     VALUE_LIST = {
@@ -403,7 +377,8 @@ def main():
     tlay = TransLayout(shron)
     tlay.check_hotkey() #hot-key check
     app = TranslyGUI(shron, tjson.icon_path, tjson.push_config_file, icon, menu, item)
-    app.run()
+    app.mainloop()
+
 
 if __name__ == "__main__":
     main()
