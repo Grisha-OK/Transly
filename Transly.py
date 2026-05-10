@@ -21,7 +21,7 @@ import ctypes
 import sys
 
 # GUI modules
-from tkinter import Tk
+from tkinter import Tk, IntVar
 import customtkinter
 from CTkToolTip import CTkToolTip
 
@@ -348,6 +348,41 @@ class Switchpool:
             new_tooltip = "Нажмите, чтобы включить"
         self.tooltip_fraim.configure(message=new_tooltip)
 
+class RadiouttonPool:
+    def __init__(self, phather_frame, shron, radio_button_attribut_setattr, obj_value, attr_value, radio_value, text_box="", rb_row=0, rd_column=0):
+        '''
+
+        '''
+        initial_value = bool(getattr(shron, radio_button_attribut_setattr))
+        if initial_value == True:
+            self.text_on_off = "On"
+        else:
+            self.text_on_off = "Off"
+        self.shron = shron
+        # self.radio_button_var = customtkinter.BooleanVar(value=initial_value)  # Инициализируем переменную для хранения состояния переключателя
+        self.radio_button_var = getattr(obj_value, attr_value)
+        self.radio_button_fraim = customtkinter.CTkRadioButton(phather_frame, text=text_box, variable=self.radio_button_var, value=radio_value,
+                                                               command=lambda: self.switch_event(rb_var=self.radio_button_var,
+                                                                                                 radio_pointer=self.radio_button_fraim,
+                                                                                                 radio_attribut_setattr=radio_button_attribut_setattr))
+        self.radio_button_fraim.grid(row=rb_row, column=rd_column, padx=10, pady=(0, 10), sticky="w")
+        self.tooltip_fraim = CTkToolTip(self.radio_button_fraim, border_width=1, message=(f"Нажмите, чтобы {'включить' if self.radio_button_var.get() == False else 'отключить'}"))
+        print((getattr(obj_value, attr_value).get()))
+
+    # Function for changing the text of a switch and its tooltip depending on the current state of the switch, as well as for changing the value of the switch in the general storage class
+    def switch_event(self, rb_var, radio_pointer, radio_attribut_setattr):
+        '''
+
+        '''
+        setattr(self.shron, radio_attribut_setattr, rb_var.get())
+        if rb_var.get() == True:
+            #radio_pointer.configure(text="Вкл.")
+            new_tooltip = "Нажмите, чтобы отключить"
+        else:
+            #radio_pointer.configure(text="Откл.")
+            new_tooltip = "Нажмите, чтобы включить"
+        self.tooltip_fraim.configure(message=new_tooltip)
+
 class TranslyGUI(customtkinter.CTk):
     def __init__(self, shron, icon_path, push_config_file, icon, menu, item):
         '''
@@ -423,21 +458,48 @@ class TranslyGUI(customtkinter.CTk):
         # Red frame for checking the correct placement of switches and text, which will be removed in the future
         self.jangle_patch = customtkinter.CTkFrame(self.switch_frame, height=0, fg_color=("red"))
         self.jangle_patch.grid(row=4, column=1, padx=435, pady=0, sticky="w")
+        
+        # Create a frame with options on the second tab
+        self.frame_settings_tab = customtkinter.CTkFrame(self.tabview.tab("Settings"), fg_color=("gray75", "gray25"), corner_radius=5)
+        self.frame_settings_tab.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="nsew")
+
+        self.frame_autostart = customtkinter.CTkFrame(self.frame_settings_tab, height=50, fg_color=("gray75", "gray25"), corner_radius=5)
+        self.frame_autostart.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="nsew")
+        self.frame_autostart.grid_columnconfigure(0, weight=1)
+        self.frame_autostart.grid_columnconfigure(1, weight=1)
+
+        self.lable_autostart = customtkinter.CTkLabel(self.frame_autostart, text="Autostart")
+        self.lable_autostart.grid(row=0, column=0, padx=10, pady=(2, 1), sticky="w")
+        self.check_box_var = customtkinter.BooleanVar(value=False)
+
+        self.radio_button_var = customtkinter.BooleanVar(value=shron.radio_autostart_config)  # Инициализируем переменную для хранения состояния переключателя
+
+        tray_start_on = RadiouttonPool(self.frame_autostart, self.shron, radio_button_attribut_setattr="radio_autostart_config", obj_value=self, attr_value="radio_button_var", radio_value=True, rb_row=0, rd_column=1)
+        tray_start_on.radio_button_fraim.configure(text=f"{tray_start_on.text_on_off} started with Windows")
+        tray_start_off = RadiouttonPool(self.frame_autostart, self.shron, radio_button_attribut_setattr="radio_autostart_config", obj_value=self, attr_value="radio_button_var", radio_value=False, rb_row=1, rd_column=1)
+        tray_start_off.radio_button_fraim.configure(text=f"{tray_start_off.text_on_off} started with Tray")
+
+        # self.check_box_start_up_tray = customtkinter.CTkRadioButton(self.frame_autostart, variable=self.check_box_var, value=True)
+        # self.check_box_start_up_tray.grid(row=0, column=1, padx=10, pady=(2, 1), sticky="w")
+
+        # self.check_box_start_down_tray = customtkinter.CTkRadioButton(self.frame_autostart, variable=self.check_box_var, value=False)
+        # self.check_box_start_down_tray.grid(row=1, column=1, padx=10, pady=(2, 1), sticky="w")
+        #self.switch_autostart = Switchpool(self.frame_autostart, self.shron, switch_attribut_setattr="switch_autostart_config", sw_row=0, sw_column=1)
 
         # Create a frame with options on the third tab
-        self.win_frame2 = customtkinter.CTkFrame(self.tabview.tab("Stayle"), fg_color=("gray75", "gray25"), corner_radius=5)
-        self.win_frame2.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="nsew")
+        self.frame_stayle_tab = customtkinter.CTkFrame(self.tabview.tab("Stayle"), fg_color=("gray75", "gray25"), corner_radius=5)
+        self.frame_stayle_tab.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="nsew")
 
         # Create a frame with options on the third tab
-        self.option_menu_1 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
+        self.option_menu_1 = customtkinter.CTkOptionMenu(self.frame_stayle_tab, dynamic_resizing=False,
                                                         values=["System", "Light", "Dark"],
                                                         command=self.change_appearance_mode_event)
         self.option_menu_1.grid(row=0, column=0, padx=20, pady=(35, 10))
-        self.option_menu_2 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
+        self.option_menu_2 = customtkinter.CTkOptionMenu(self.frame_stayle_tab, dynamic_resizing=False,
                                                         values=["english", "Russian"],
                                                         command=self.change_appearance_mode_event)
         self.option_menu_2.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.option_menu_3 = customtkinter.CTkOptionMenu(self.win_frame2, dynamic_resizing=False,
+        self.option_menu_3 = customtkinter.CTkOptionMenu(self.frame_stayle_tab, dynamic_resizing=False,
                                                         values=["normal", "aero", "win7"],
                                                         command=self.change_appearance_mode_event)
         self.option_menu_3.grid(row=2, column=0, padx=20, pady=(10, 10))
@@ -496,7 +558,8 @@ def main():
         "language_ru": LANGUAGE_RU,
         "simvol_alphabet_language": ALPHABET_LANGUAGE,
         "switch_shift_alt_config": SWITCH_SHIFT_ALT,
-        "switch_ctrl_a_config": SWITCH_CTRL_A
+        "switch_ctrl_a_config": SWITCH_CTRL_A,
+        "radio_autostart_config": True
     }
     shron = BacupsShron()
     tjson = TransJson()
