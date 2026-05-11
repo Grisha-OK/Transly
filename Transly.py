@@ -350,37 +350,51 @@ class Switchpool:
 
 class RadiouttonPool:
     def __init__(self, phather_frame, shron, radio_button_attribut_setattr, obj_value, attr_value, radio_value, text_box="", rb_row=0, rd_column=0):
-        '''
-
-        '''
-        initial_value = bool(getattr(shron, radio_button_attribut_setattr))
-        if initial_value == True:
-            self.text_on_off = "On"
-        else:
-            self.text_on_off = "Off"
         self.shron = shron
-        # self.radio_button_var = customtkinter.BooleanVar(value=initial_value)  # Инициализируем переменную для хранения состояния переключателя
+        self.radio_attr = radio_button_attribut_setattr
+        self.obj_value = obj_value # Ссылка на главный класс, где лежит переменная
         self.radio_button_var = getattr(obj_value, attr_value)
-        self.radio_button_fraim = customtkinter.CTkRadioButton(phather_frame, text=text_box, variable=self.radio_button_var, value=radio_value,
-                                                               command=lambda: self.switch_event(rb_var=self.radio_button_var,
-                                                                                                 radio_pointer=self.radio_button_fraim,
-                                                                                                 radio_attribut_setattr=radio_button_attribut_setattr))
+        
+        # Упрощаем определение текста
+        self.text_on_off = "On" if bool(getattr(shron, radio_button_attribut_setattr)) else "Off"
+
+        self.radio_button_fraim = customtkinter.CTkRadioButton(
+            phather_frame, 
+            text=text_box, 
+            variable=self.radio_button_var, 
+            value=radio_value,
+            command=self.update_all_tooltips # Вызываем метод обновления всех
+        )
         self.radio_button_fraim.grid(row=rb_row, column=rd_column, padx=10, pady=(0, 10), sticky="w")
-        self.tooltip_fraim = CTkToolTip(self.radio_button_fraim, border_width=1, message=(f"Нажмите, чтобы {'включить' if self.radio_button_var.get() == False else 'отключить'}"))
-        print((getattr(obj_value, attr_value).get()))
+        
+        self.tooltip_fraim = CTkToolTip(
+            self.radio_button_fraim, 
+            border_width=1, 
+            message=("Включенно" if self.radio_button_var.get() == radio_value else "Нажмите, чтобы включить")
+        )
 
-    # Function for changing the text of a switch and its tooltip depending on the current state of the switch, as well as for changing the value of the switch in the general storage class
-    def switch_event(self, rb_var, radio_pointer, radio_attribut_setattr):
-        '''
+    def set_list_radio_pools(self, list_radio_buttons):
+        self.list_radio_pools = getattr(self.obj_value, list_radio_buttons)
 
-        '''
-        setattr(self.shron, radio_attribut_setattr, rb_var.get())
-        if rb_var.get() == True:
-            #radio_pointer.configure(text="Вкл.")
-            new_tooltip = "Нажмите, чтобы отключить"
-        else:
-            #radio_pointer.configure(text="Откл.")
-            new_tooltip = "Нажмите, чтобы включить"
+    def update_all_tooltips(self):
+        """Метод, который вызывается при переключении любой кнопки"""
+        # 1. Сначала сохраняем значение в Shron (конфиг)
+        setattr(self.shron, self.radio_attr, self.radio_button_var.get())
+        
+        #self.radio_button_fraim.configure(text=f"{self.radio_button_var.get() == self.radio_button_fraim.cget('value')} started with {'Windows' if self.radio_button_fraim.cget('value') else 'Tray'}")
+        # 2. А теперь магия: вызываем обновление тултипов у всех кнопок в этом пуле
+        # Для этого в главном классе нам нужно будет хранить список этих объектов
+        
+        for pool_item in self.list_radio_pools:
+            pool_item.refresh_tooltip_text()
+
+    def refresh_tooltip_text(self):
+        """Метод для обновления текста конкретно этого экземпляра"""
+        # Если значение переменной совпадает с value этой кнопки, значит она активна
+        is_active = self.radio_button_var.get() == self.radio_button_fraim.cget("value")
+        new_tooltip = "Включенно" if is_active else "Нажмите, чтобы включить"
+        new_text = ("True" if is_active else "False") + (" started with Windows" if self.radio_button_fraim.cget("value") else " started with Tray")
+        self.radio_button_fraim.configure(text=new_text)
         self.tooltip_fraim.configure(message=new_tooltip)
 
 class TranslyGUI(customtkinter.CTk):
@@ -470,21 +484,25 @@ class TranslyGUI(customtkinter.CTk):
 
         self.lable_autostart = customtkinter.CTkLabel(self.frame_autostart, text="Autostart")
         self.lable_autostart.grid(row=0, column=0, padx=10, pady=(2, 1), sticky="w")
-        self.check_box_var = customtkinter.BooleanVar(value=False)
 
-        self.radio_button_var = customtkinter.BooleanVar(value=shron.radio_autostart_config)  # Инициализируем переменную для хранения состояния переключателя
-
-        tray_start_on = RadiouttonPool(self.frame_autostart, self.shron, radio_button_attribut_setattr="radio_autostart_config", obj_value=self, attr_value="radio_button_var", radio_value=True, rb_row=0, rd_column=1)
-        tray_start_on.radio_button_fraim.configure(text=f"{tray_start_on.text_on_off} started with Windows")
-        tray_start_off = RadiouttonPool(self.frame_autostart, self.shron, radio_button_attribut_setattr="radio_autostart_config", obj_value=self, attr_value="radio_button_var", radio_value=False, rb_row=1, rd_column=1)
-        tray_start_off.radio_button_fraim.configure(text=f"{tray_start_off.text_on_off} started with Tray")
-
-        # self.check_box_start_up_tray = customtkinter.CTkRadioButton(self.frame_autostart, variable=self.check_box_var, value=True)
-        # self.check_box_start_up_tray.grid(row=0, column=1, padx=10, pady=(2, 1), sticky="w")
-
-        # self.check_box_start_down_tray = customtkinter.CTkRadioButton(self.frame_autostart, variable=self.check_box_var, value=False)
-        # self.check_box_start_down_tray.grid(row=1, column=1, padx=10, pady=(2, 1), sticky="w")
-        #self.switch_autostart = Switchpool(self.frame_autostart, self.shron, switch_attribut_setattr="switch_autostart_config", sw_row=0, sw_column=1)
+        # 1. Создаем переменную
+        self.radio_button_var = customtkinter.BooleanVar(value=shron.radio_autostart_config)
+        
+        # 2. Создаем список для хранения объектов пула (чтобы они могли обновлять друг друга)
+        self.all_radio_pools = []
+        
+        # 3. Инициализируем кнопки
+        tray_start_on = RadiouttonPool(self.frame_autostart, self.shron, "radio_autostart_config", self, "radio_button_var", True, rb_row=0, rd_column=1)
+        tray_start_off = RadiouttonPool(self.frame_autostart, self.shron, "radio_autostart_config", self, "radio_button_var", False, rb_row=1, rd_column=1)
+        
+        # 4. Добавляем их в список
+        self.all_radio_pools.extend([tray_start_on, tray_start_off])
+        tray_start_off.set_list_radio_pools("all_radio_pools")
+        tray_start_on.set_list_radio_pools("all_radio_pools")
+        
+        # Принудительно обновляем текст (опционально)
+        tray_start_on.radio_button_fraim.configure(text=f"{tray_start_on.radio_button_var.get() == tray_start_on.radio_button_fraim.cget("value")} started with Windows")
+        tray_start_off.radio_button_fraim.configure(text=f"{tray_start_off.radio_button_var.get() == tray_start_off.radio_button_fraim.cget("value")} started with Tray")
 
         # Create a frame with options on the third tab
         self.frame_stayle_tab = customtkinter.CTkFrame(self.tabview.tab("Stayle"), fg_color=("gray75", "gray25"), corner_radius=5)
