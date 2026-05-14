@@ -445,7 +445,7 @@ class TranslyGUI(customtkinter.CTk):
 
         self.iconbitmap(icon_path)
         self.title("Transly")
-        self.geometry("400x330")
+        self.geometry("350x290")
 
         # configure main window grid so tabview stays at top and extra space is below
         self.grid_rowconfigure(0, weight=1)  # табвью
@@ -466,6 +466,7 @@ class TranslyGUI(customtkinter.CTk):
         self.tabview.tab("Home").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
         self.tabview.tab("Home").grid_rowconfigure(2, weight=1)
         self.tabview.tab("Settings").grid_columnconfigure(0, weight=1)
+        self.tabview.tab("Settings").grid_rowconfigure(0, weight=1)
         self.tabview.tab("Stayle").grid_columnconfigure(0, weight=1)
         self.tabview.tab("Stayle").grid_rowconfigure(0, weight=1)
 
@@ -477,10 +478,20 @@ class TranslyGUI(customtkinter.CTk):
         self.lable_text = customtkinter.CTkLabel(self.lable_frame, text="This is program for change layout and language\nfor charging layout and language press hotkeys")
         self.lable_text.grid(row=0, column=1, padx=20, pady=(10, 10), sticky="w")
 
+        # Create a frame for content on the first tab
+        self.kontent_frame = customtkinter.CTkFrame(self.tabview.tab("Home"), fg_color=("transparent"))
+        self.kontent_frame.grid(row=2, column=0, padx=15, pady=(0, 10), sticky="nsew")
+        self.kontent_frame.grid_columnconfigure(0, weight=0)
+        self.kontent_frame.grid_columnconfigure(1, weight=1)
+        self.kontent_frame.grid_columnconfigure(2, weight=1)
+
+        # Create a frame with hot-keys on the first tab
+        self.hot_key_frame = customtkinter.CTkFrame(self.kontent_frame, height=50, fg_color=("gray75", "gray25"), corner_radius=5)
+        self.hot_key_frame.grid(row=0, column=1, padx=5, pady=(10, 10), sticky="nsew")
+
         # Create a frame with switches on the first tab
-        self.switch_frame = customtkinter.CTkFrame(self.tabview.tab("Home"), height=50, fg_color=("gray75", "gray25"), corner_radius=5)
-        self.switch_frame.grid(row=2, column=0, padx=20, pady=(10, 10), sticky="nsew")
-        #self.switch_frame.grid_columnconfigure(0, weight=1)
+        self.switch_frame = customtkinter.CTkFrame(self.kontent_frame, height=50, fg_color=("gray75", "gray25"), corner_radius=5)
+        self.switch_frame.grid(row=0, column=2, padx=5, pady=(10, 10), sticky="nsew")
 
         with_ext_select = {
                     "true":{
@@ -510,16 +521,19 @@ class TranslyGUI(customtkinter.CTk):
         self.lable_trans_layout.grid(row=2, column=1, padx=20, pady=(0, 0), sticky="w")  
         # Switch two
         self.switch_trans_layout = Switchpool(self.switch_frame, with_trans_layout, self.shron, switch_attribut_setattr="switch_shift_alt_config", sw_row=3, sw_column=1)
-
-        # Red frame for checking the correct placement of switches and text, which will be removed in the future
-        # self.jangle_patch = customtkinter.CTkFrame(self.switch_frame, height=0, fg_color=("red"))
-        # self.jangle_patch.grid(row=4, column=1, padx=435, pady=0, sticky="w")
         
         # Create a frame with options on the second tab
-        self.frame_settings_tab = customtkinter.CTkFrame(self.tabview.tab("Settings"), fg_color=("gray75", "gray25"), corner_radius=5)
+        self.frame_settings_tab = customtkinter.CTkFrame(self.tabview.tab("Settings"), fg_color=("transparent"), corner_radius=5)
         self.frame_settings_tab.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="nsew")
+        self.frame_settings_tab.grid_columnconfigure(0, weight=1)
+        self.frame_settings_tab.grid_rowconfigure(0, weight=0)
+        self.frame_settings_tab.grid_rowconfigure(1, weight=1)
 
-        self.frame_autostart = customtkinter.CTkFrame(self.frame_settings_tab, height=50, fg_color=("gray75", "gray25"), corner_radius=5)
+        self.setint_scroll_frame = customtkinter.CTkScrollableFrame(self.frame_settings_tab, fg_color=("gray75", "gray25"), corner_radius=5)
+        self.setint_scroll_frame.grid(row=1, column=0, sticky="nsew")
+
+        # Create a frame with options on the second tab
+        self.frame_autostart = customtkinter.CTkFrame(self.setint_scroll_frame, height=50, fg_color=("gray75", "gray25"), corner_radius=5)
         self.frame_autostart.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="nsew")
         self.frame_autostart.grid_columnconfigure(0, weight=1)
         self.frame_autostart.grid_columnconfigure(1, weight=1)
@@ -548,12 +562,18 @@ class TranslyGUI(customtkinter.CTk):
                       "text": "Tray mode", 
                       "tooltip": "Run an application in tray mode: off"}}
         
+        # Create radio buttons for autostart options
         self.tray_start_on = RadiouttonPool(self.frame_autostart, with_window, self.shron, "radio_autostart_config", self, "radio_button_var", True, rb_row=1, rd_column=0)
         self.tray_start_off = RadiouttonPool(self.frame_autostart, with_tray, self.shron, "radio_autostart_config", self, "radio_button_var", False, rb_row=2, rd_column=0)
         
         self.all_radio_pools.extend([self.tray_start_on, self.tray_start_off])
         self.tray_start_off.set_list_radio_pools("all_radio_pools")
         self.tray_start_on.set_list_radio_pools("all_radio_pools")
+
+        self.frame_close_window = customtkinter.CTkFrame(self.setint_scroll_frame, height=500, fg_color=("red"), corner_radius=5)
+        self.frame_close_window.grid(row=2, column=0, padx=10, pady=(10, 10), sticky="nsew")
+        self.frame_close_window.grid_columnconfigure(0, weight=1)
+        self.frame_close_window.grid_columnconfigure(1, weight=1)
 
         # Create a frame with options on the third tab
         self.frame_stayle_tab = customtkinter.CTkFrame(self.tabview.tab("Stayle"), fg_color=("gray75", "gray25"), corner_radius=5)
