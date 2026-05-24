@@ -488,6 +488,26 @@ class TranslyGUI(customtkinter.CTk):
         # Create a frame with hot-keys on the first tab
         self.hot_key_frame = customtkinter.CTkFrame(self.kontent_frame, height=50, fg_color=("gray75", "gray25"), corner_radius=5)
         self.hot_key_frame.grid(row=0, column=1, padx=5, pady=(10, 10), sticky="nsew")
+        
+        # Create clue with hot-keys and labels for them layout
+        self.layout_button = customtkinter.CTkButton(self.hot_key_frame, text=self.shron.hot_key_layout, 
+                                                     state="disabled", corner_radius=100,
+                                                     width=10, height=10)
+        self.layout_button.grid(row=0, column=0, padx=10, pady=(13, 0), sticky="w")
+        self.tooltip_layout_button = CTkToolTip(self.layout_button, border_width=1, message=f"Press {self.shron.hot_key_layout} hot-key for change layout")
+        self.lable_hot_key_layout = customtkinter.CTkLabel(self.hot_key_frame, text="for change layout")
+        self.lable_hot_key_layout.grid(row=1, column=0, padx=15, pady=(0, 0), sticky="w")
+        self.tultip_lable_hot_key_layout = CTkToolTip(self.lable_hot_key_layout, border_width=1, message=f"Press {self.shron.hot_key_layout} hot-key for change layout")
+        
+        # Create clue with hot-keys and labels for them translation 
+        self.translate_button = customtkinter.CTkButton(self.hot_key_frame, text=self.shron.hot_key_translate, 
+                                                        state="disabled", corner_radius=100,
+                                                        width=10, height=10)
+        self.translate_button.grid(row=2, column=0, padx=10, pady=(12, 0), sticky="w")
+        self.tooltip_translate_button = CTkToolTip(self.translate_button, border_width=1, message=f"Press {self.shron.hot_key_translate} hot-key for translate text")
+        self.lable_hot_key_translate = customtkinter.CTkLabel(self.hot_key_frame, text="for translate text")
+        self.lable_hot_key_translate.grid(row=3, column=0, padx=15, pady=(0, 0), sticky="w")
+        self.tultip_lable_hot_key_translate = CTkToolTip(self.lable_hot_key_translate, border_width=1, message=f"Press {self.shron.hot_key_translate} hot-key for translate text")
 
         # Create a frame with switches on the first tab
         self.switch_frame = customtkinter.CTkFrame(self.kontent_frame, height=50, fg_color=("gray75", "gray25"), corner_radius=5)
