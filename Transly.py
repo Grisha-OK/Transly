@@ -561,7 +561,7 @@ class TranslyGUI(customtkinter.CTk):
         self.lable_autostart = customtkinter.CTkLabel(self.frame_autostart, text="Launch Transly")
         self.lable_autostart.grid(row=0, column=0, padx=10, pady=(2, 1), sticky="w")
 
-        self.radio_button_var = customtkinter.BooleanVar(value=shron.radio_autostart_config)
+        self.radio_button_var = customtkinter.BooleanVar(value=shron.switch_radio_autostart_config)
         
         self.all_radio_pools = []
 
@@ -583,8 +583,8 @@ class TranslyGUI(customtkinter.CTk):
                       "tooltip": "Run an application in tray mode: off"}}
         
         # Create radio buttons for autostart options
-        self.tray_start_on = RadiouttonPool(self.frame_autostart, with_window, self.shron, "radio_autostart_config", self, "radio_button_var", True, rb_row=1, rd_column=0)
-        self.tray_start_off = RadiouttonPool(self.frame_autostart, with_tray, self.shron, "radio_autostart_config", self, "radio_button_var", False, rb_row=2, rd_column=0)
+        self.tray_start_on = RadiouttonPool(self.frame_autostart, with_window, self.shron, "switch_radio_autostart_config", self, "radio_button_var", True, rb_row=1, rd_column=0)
+        self.tray_start_off = RadiouttonPool(self.frame_autostart, with_tray, self.shron, "switch_radio_autostart_config", self, "radio_button_var", False, rb_row=2, rd_column=0)
         
         self.all_radio_pools.extend([self.tray_start_on, self.tray_start_off])
         self.tray_start_off.set_list_radio_pools("all_radio_pools")
@@ -668,7 +668,7 @@ def main():
         "simvol_alphabet_language": ALPHABET_LANGUAGE,
         "switch_shift_alt_config": SWITCH_SHIFT_ALT,
         "switch_ctrl_a_config": SWITCH_CTRL_A,
-        "radio_autostart_config": True
+        "switch_radio_autostart_config": True
     }
     shron = BacupsShron()
     tjson = TransJson()
