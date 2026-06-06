@@ -3,6 +3,8 @@ I apologize for this appeal :D
                                     
 """    
 
+import threading
+
 # External libraries
 import clipboard
 import keyboard
@@ -423,10 +425,11 @@ class RadiouttonPool:
         self.tooltip_fraim.configure(message=self.new_tooltip)
 
 class TranslyGUI(customtkinter.CTk):
-    def __init__(self, shron, icon_path, push_config_file, icon, menu, item):
+    def __init__(self, shron, tray, icon_path, push_config_file):
         '''
         Class for creating the main GUI window for the Transly application.
         shron - the object for saving and storaging sistem variable
+        tray - the tray icon object
         icon_path - the path to the file icon directory, which is used to store the icon of the program in the system tray
         push_config_file - the function for writing the settings of the program to a JSON file, which is used to store the settings of the program
         icon - the class for creating an icon for the program in the system tray, which is used to create an icon for the program in the system tray
@@ -437,11 +440,9 @@ class TranslyGUI(customtkinter.CTk):
         super().__init__()
 
         self.shron = shron
+        self.tray_icon = tray
         self.icon_path = icon_path
         self.push_config_file = push_config_file
-        self.icon = icon
-        self.menu = menu
-        self.item = item
 
         self.iconbitmap(icon_path)
         self.title("Transly")
@@ -630,12 +631,27 @@ class TranslyGUI(customtkinter.CTk):
 
     # Check window closing and tray icon initialization
     def setup_tray(self):
-        self.protocol('WM_DELETE_WINDOW', self.hide_window)
+        self.protocol('WM_DELETE_WINDOW', self.star_tray)  # Set the protocol for the window close event to minimize to tray instead of closing
+        self.push_config_file(self.shron.atreibute_list_value())
+
+    def quit_and_push(self):
+        super().quit()
         self.push_config_file(self.shron.atreibute_list_value())
     
+    def star_tray(self):
+        self.withdraw() # Hide the main window
+        self.tray_icon.hide_window()
+
+class TrayIcon:
+    def __init__(self, icon_path):
+       self.icon_path = icon_path
+
+    def set_tray_obj(self, win_obj=None):
+       self.win_obj = win_obj
+       print("Tray object set successfully")
+
     # Hide the window and show it on the system taskbar
     def hide_window(self):
-       self.withdraw()
        image = Image.open(self.icon_path)
        menu = (item('Quit', lambda : self.quit_window()),
                item('Show', lambda : self.show_window()))
@@ -644,20 +660,23 @@ class TranslyGUI(customtkinter.CTk):
     
     # Define a function to exit the window / and by compatibility for exiting the entire program
     def quit_window(self):
-           self.icon.stop()
-           os.abort()
-
-    def quit_and_push(self):
-        super().quit()
-        self.push_config_file(self.shron.atreibute_list_value())
+        self.icon.stop()
+        os.abort()
     
     # A function for re-displaying the window
     def show_window(self):
         self.icon.stop()
-        self.deiconify() #I'll probably leave it here <win.after(0,win.deiconify())>
+        try:
+            global app
+            app = TranslyGUI(shron, self, tjson.icon_path, tjson.push_config_file)
+            app.deiconify()
+            app.mainloop()
+        except AttributeError:
+            self.win_obj.deiconify()
 
     def run(self):
         self.mainloop() 
+
 
 def main():
     VALUE_LIST = {
@@ -670,14 +689,20 @@ def main():
         "switch_ctrl_a_config": SWITCH_CTRL_A,
         "switch_radio_autostart_config": True
     }
+    global shron, tray, tjson
     shron = BacupsShron()
     tjson = TransJson()
     tjson.setting_attributes(shron, VALUE_LIST, tjson.file_icon_path("favicon.ico", "img"), tjson.file_config_path("config.json", ".transly"))
     tlay = TransLayout(shron)
     tlay.check_hotkey() #hot-key check
-    app = TranslyGUI(shron, tjson.icon_path, tjson.push_config_file, icon, menu, item)
-    app.mainloop()
-
+    tray = TrayIcon(tjson.icon_path)
+    if shron.switch_radio_autostart_config == False:
+        tray.hide_window()
+        
+    else:
+        app = TranslyGUI(shron, tray, tjson.icon_path, tjson.push_config_file)
+        tray.set_tray_obj(app)
+        app.mainloop()
 
 if __name__ == "__main__":
     main()
